@@ -518,7 +518,6 @@ class Arpes:
         flattened = higher_dimension_xr.sum('ky')
         return flattened
 
-
     # Kz maps should always be in binding energy, will need to shift off using a fixed work-function to recover
     # kinetic energy for k conversion
     def map_isoenergy_kz_k_irreg(self, be=0, workfunc=4.2, binwidth=0.1, phi0=0, inner_potential=15):

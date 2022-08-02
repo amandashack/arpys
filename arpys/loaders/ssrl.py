@@ -14,6 +14,8 @@ def fix_boolean_attributes(xarray):
             xarray.attrs[attr] = str(xarray.attrs[attr])
     return xarray
 # 02/2020 and before?? Confirmed to work with data from 02/2020
+
+
 def load_ssrl_52_prehistoric(filename):
     conv = {'X': 'x', 'Z': 'z', 'ThetaX': 'slit', 'ThetaY': 'perp', 'Theta Y': 'perp', 'Kinetic Energy': 'energy'}
     f = h5py.File(filename, 'r')
@@ -86,6 +88,7 @@ def load_ssrl_52_old(filename):
     f.close()
     return xr.DataArray(vals, dims=axis_labels, coords=coords, attrs=attrs)
 
+
 #After 10/2020
 def load_ssrl_52(filename):
     conv = {'X': 'x', 'Z': 'z', 'ThetaX': 'slit', 'ThetaY': 'perp', 'Theta Y': 'perp', 'Kinetic Energy': 'energy'}
@@ -127,6 +130,7 @@ def load_ssrl_52(filename):
     boolean_fixed = fix_boolean_attributes(xarray)
     return boolean_fixed
 
+
 def load_ssrl_52_raster(filename):
     conv = {'Kinetic Energy': 'energy', 'ThetaX': 'slit', 'ThetaY': 'perp', 'Theta Y': 'perp', 'X': 'x', 'Y': 'y', 'Z': 'z'}
     with h5py.File(filename, 'r') as f:
@@ -166,6 +170,7 @@ def load_ssrl_52_raster(filename):
         attrs = dict(f['Beamline'].attrs)
         attrs.update(dict(f['Endstation'].attrs))
         return xr.DataArray(counts, dims=axis_labels, coords=coords, attrs=attrs)
+
 
 def load_ssrl_52_raster_list(filenames, x_min=None, dx=None, Nx=None, z_min=None, dz=None, Nz=None, gaps=None):
     x = []
