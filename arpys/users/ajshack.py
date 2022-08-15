@@ -104,7 +104,7 @@ def np_transpose(xar, tr):
     coords = {}
     dims = []
     for i in tr:
-        name = list(xar.coords)[i]
+        name = list(xar.dims)[i]
         coords[name] = xar[name].values
         dims.append(list(xar.dims)[i])
     return xr.DataArray(np.transpose(xar.data, tr), dims=dims, coords=coords)
@@ -124,7 +124,14 @@ def fix_array(ar, scan_type):
         size_new = [len(photon_energy), len(slit), len(energy)]
         size_ar = list(ar.values.shape)
         tr = [size_ar.index(i) for i in size_new]
-        print(size_new, size_ar, tr)
+        return np_transpose(ar, tr)
+    if scan_type == "fermi_map":
+        slit = ar.slit.values
+        perp = ar.perp.values
+        energy = ar.energy.values
+        size_new = [len(slit), len(perp), len(energy)]
+        size_ar = list(ar.values.shape)
+        tr = [size_ar.index(i) for i in size_new]
         return np_transpose(ar, tr)
 
 

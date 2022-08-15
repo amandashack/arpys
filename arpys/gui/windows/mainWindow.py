@@ -2,9 +2,11 @@ import logging
 
 from context import Context
 from gui.views.fermiMapView import FermiMapView
-# from gui.views.jetTrackerView import JetTrackerView
+from gui.views.hvScanView import HVScanView
+from gui.views.singleScanView import SingleScanView
 from gui.windows.mainWindowUi import Ui_MainWindow
 from gui.windows.fileLoaderWindow import FileLoaderWindow
+from gui.windows.dewarpToolWindow import DewarperWindow
 from PyQt5.Qt import Qt
 from PyQt5.QtCore import QCoreApplication
 from PyQt5.QtWidgets import (QAction, QLabel, QMainWindow, QSizePolicy,
@@ -25,14 +27,27 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tab_widget = None
         self.file_loader = None
         self.fermi_map_view = None
-        # self.jetTrackerView = None
-        # self.jetImageView = None
+        self.hv_scan_view = None
+        self.single_scan_view = None
+        self.dewarper = None
         self.tab_widget = None
         self.create_views_and_dialogs()
         self.setup_window_tabs()
         self.create_menu_bar_actions()
+        self.make_connections()
         self.connect_buttons()
         self.connect_signals()
+
+    def make_connections(self):
+        self.signals.startDewarper.connect(self.open_dewarper)
+
+    def create_views_and_dialogs(self):
+        self.file_loader = FileLoaderWindow(self.context, self.signals)
+        self.fermi_map_view = FermiMapView(self.context, self.signals)
+        self.hv_scan_view = HVScanView(self.context, self.signals)
+        self.single_scan_view = SingleScanView(self.context, self.signals)
+        self.dewarper = DewarperWindow(self.context, self.signals, None)
+        # self.helpDialog = HelpDialog()
 
     def setup_window_tabs(self):
         self.tab_widget = QTabWidget()
@@ -41,15 +56,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                       QSizePolicy.Expanding)
         self.setCentralWidget(self.tab_widget)
         self.tab_widget.addTab(self.fermi_map_view, "Fermi Map")
-        # self.tabWidget.addTab(self.cutView, "Iso-Energy Cut")
-        # self.tabWidget.addTab(self.hvScanView, "Photon Energy Scan")
-
-    def create_views_and_dialogs(self):
-        self.file_loader = FileLoaderWindow(self.context, self.signals)
-        self.fermi_map_view = FermiMapView(self.context, self.signals)
-        # self.jetTrackerView = JetTrackerView(self.context, self.signals, self)
-        # self.jetImageView = JetImageView(self.context, self.signals)
-        # self.helpDialog = HelpDialog()
+        self.tab_widget.addTab(self.single_scan_view, "Iso-Energy Cut")
+        self.tab_widget.addTab(self.hv_scan_view, "Photon Energy Scan")
 
     def create_file_actions(self):
         ids = ["Open", "Export", "Exit"]
@@ -182,6 +190,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # the one you opened before with the new one you have
         # selected.
         self.file_loader.show()
+
+    def open_dewarper(self, scan_type):
+        self.dewarper.set_scan_type(scan_type)
+        self.dewarper.show()
 
     def exportData(self):
         print("you tried to export data")

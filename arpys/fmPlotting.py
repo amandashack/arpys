@@ -4,6 +4,8 @@ from PyQt5 import QtCore
 from PyQt5.QtWidgets import QSizePolicy
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+from pyimagetool import PGImageTool, RegularDataArray
+import xarray as xr
 
 
 def graph_setup(graph, title, y_axis, pen):
@@ -31,69 +33,74 @@ def add_calibration_graph(graph):
 
 class PlotCanvas(FigureCanvas):
 
-    def __init__(self, context, signals, parent=None, width=5, height=4, dpi=100):
-        self.context = context
-        self.signals = signals
-        fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111)
-        self.axes.set_title('PyQt Matplotlib')
-        self.data = xarray.DataArray()
-
-        FigureCanvas.__init__(self, fig)
+    def __init__(self, parent=None, width=5, height=4, dpi=100):
+        self.fig = Figure(figsize=(width, height), dpi=dpi)
+        super(PlotCanvas, self).__init__(self.fig)
         self.setParent(parent)
-
         FigureCanvas.setSizePolicy(self,
                                    QSizePolicy.Expanding,
                                    QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
-        self.plot(self.data)
+        self.data = xr.DataArray()
+        self.axes = self.fig.add_subplot(111)
+        self.axes.yaxis.set_ticks_position('both')
+        self.axes.xaxis.set_ticks_position('both')
+
+    def set_xyt(self, x, y, t):
+        self.axes.set_xlabel(x)
+        self.axes.set_ylabel(y)
+        self.axes.set_title(t)
+
+    def set_xlim(self, xmin, xmax):
+        self.axes.set_xlim(xmin, xmax)
+
+    def set_ylim(self, ymin, ymax):
+        self.axes.set_ylim(ymin, ymax)
 
     def plot(self, data):
         self.data = data
         self.data.plot(ax=self.axes)
         self.draw()
 
+"""
+class PlotCanvas(FigureCanvas):
 
-class fmPlotWidget(pg.PlotWidget):
-
-    def __init__(self, context, signals, parent=None):
-        super(fmPlotWidget, self).__init__(parent)
+    def __init__(self, context, signals, parent=None, width=5, height=4, dpi=100):
         self.context = context
         self.signals = signals
-        self.setMouseEnabled(x=False, y=False)
-        #self.setXRange(0, self.context.display_time)
+        self.title = self.context.title
+        self.x_label = self.context.x_label
+        self.y_label = self.context.y_label
+        self.fig = Figure(figsize=(width, height), dpi=dpi)
+        super(PlotCanvas, self).__init__(self.fig)
+        self.setParent(parent)
+        FigureCanvas.setSizePolicy(self,
+                                   QSizePolicy.Expanding,
+                                   QSizePolicy.Expanding)
+        FigureCanvas.updateGeometry(self)
+        self.make_connections()
 
-    def addPlot(self, plt):
-        self.plt = plt
-        self.addItem(plt)
+    def make_connections(self):
+        self.signals.updateXYTLabel.connect(self.update_xyt)
 
-    def addAvePlot(self, plt):
-        self.avg_plt = plt
-        self.addItem(plt)
+    def update_xyt(self, x, y, t):
+        self.axes.clear()
+        self.x_label = x
+        self.y_label = y
+        self.title = t
+        self.axes.set_title(self.title)
+        self.axes.set_xlabel(self.x_label)
+        self.axes.set_ylabel(self.y_label)
+        self.plot(self.data)
 
-    def addMeanPlot(self, plt):
-        self.mean_plt = plt
-        self.addItem(plt)
+    def plot(self, data):
+        self.data = data
+        ax = self.fig.add_subplot(111)
+        self.data.plot(ax=ax)
+        self.draw()
+"""
 
-    def addSigmaPlots(self, plt1, plt2):
-        self.percent_low = plt1
-        self.percent_high = plt2
-        self.pfill = pg.FillBetweenItem(self.percent_high, self.percent_low,
-                                        brush=(50, 50, 200, 50))
-        self.addItem(self.percent_low)
-        self.addItem(self.percent_high)
-        self.addItem(self.pfill)
+class fmPlotWidget(PGImageTool):
+    def __init__(self, parent=None):
+        super(fmPlotWidget, self).__init__(parent)
 
-    def refreshCalibrationPlots(self):
-        self.removeItem(self.percent_low)
-        self.removeItem(self.percent_high)
-        self.removeItem(self.mean_plt)
-        self.addMeanPlot(self.mean_plt)
-        self.addSigmaPlots(self.percent_low, self.percent_high)
-
-    def changeRange(self):
-        self.removeItem(self.plt)
-        self.removeItem(self.avg_plt)
-        self.setXRange(0, self.context.display_time)
-        self.addPlot(self.plt)
-        self.addAvePlot(self.avg_plt)

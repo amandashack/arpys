@@ -2,12 +2,17 @@ from dataclasses import dataclass
 
 from PyQt5 import QtCore
 from PyQt5.QtCore import (QAbstractAnimation, QParallelAnimationGroup,
-                          QPropertyAnimation, QRect, Qt, pyqtSignal)
-from PyQt5.QtGui import QBrush, QColor, QDoubleValidator, QPainter, QPalette
+                          QPropertyAnimation, QRect, Qt, pyqtSignal, QPointF)
+from PyQt5.QtGui import QBrush, QColor, QDoubleValidator, QPainter, QPalette, QPen
 from PyQt5.QtWidgets import (QComboBox, QFrame, QGraphicsScene, QGraphicsView,
                              QLabel, QLineEdit, QMessageBox, QPushButton,
                              QScrollArea, QSizePolicy, QToolButton,
-                             QVBoxLayout, QWidget)
+                             QVBoxLayout, QWidget, QSpinBox, QGraphicsLineItem)
+
+
+# when you come back - working on getting spinbox working - I was trying to get the
+# stucture of the "fake" data to work but for now lets just load in fermi map data
+# and try from there. I just want to keep going with the dewarping widget.
 
 
 class GraphicsView(QGraphicsView):
@@ -29,6 +34,74 @@ class ComboBox(QComboBox):
 class PushButton(QPushButton):
     def __init__(self, parent=None):
         super(PushButton, self).__init__(parent)
+
+
+class HLineItem(QGraphicsLineItem):
+
+    def __init__(self):
+        super(HLineItem, self).__init__()
+        self.setPen(QPen(Qt.red, 3))
+        self.setFlag(QGraphicsLineItem.ItemIsMovable)
+        self.setCursor(Qt.OpenHandCursor)
+        self.setAcceptHoverEvents(True)
+
+    def mouseMoveEvent(self, event):
+        orig_cursor_position = event.lastScenePos()
+        updated_cursor_position = event.scenePos()
+
+        orig_position = self.scenePos()
+        updated_cursor_y = updated_cursor_position.y() - \
+                           orig_cursor_position.y() + orig_position.y()
+        self.setPos(QPointF(orig_position.x(), updated_cursor_y))
+
+
+class VLineItem(QGraphicsLineItem):
+
+    def __init__(self):
+        super(VLineItem, self).__init__()
+        self.setPen(QPen(Qt.blue, 3))
+        self.setFlag(QGraphicsLineItem.ItemIsMovable)
+        self.setCursor(Qt.OpenHandCursor)
+        self.setAcceptHoverEvents(True)
+
+    def mouseMoveEvent(self, event):
+        orig_cursor_position = event.lastScenePos()
+        updated_cursor_position = event.scenePos()
+
+        orig_position = self.scenePos()
+        updated_cursor_x = updated_cursor_position.x() - \
+                           orig_cursor_position.x() + orig_position.x()
+        self.setPos(QPointF(updated_cursor_x, orig_position.y()))
+
+
+class SpinBox(QSpinBox):
+    def __init__(self, parent=None):
+        super(SpinBox, self).__init__(parent)
+        self.indicies = {}
+        self.values = []
+        self.set_values(self.values)
+        #self.setValue(0)
+
+    def values(self):
+        return self.values
+
+    def set_values(self, values):
+        self.values = list(values)
+        self.indicies = dict(zip(self.values, range(len(self.values))))
+        self.setRange(0, len(self.values)-1)
+
+    def textFromValue(self, value):
+        return str(self.values[value])
+
+    def valueFromText(self, text):
+        return self.indicies[float(text)]
+
+    def stepBy(self, step):
+        if self.value() == 1 and step == -1:
+            self.setValue(self.maximum())
+        elif self.value() == self.maximum() - 1 and step == 1:
+            self.setValue(0)
+        QSpinBox.stepBy(self, step)
 
 
 class LineEdit(QLineEdit):

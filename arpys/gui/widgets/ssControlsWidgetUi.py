@@ -6,14 +6,14 @@ from PyQt5.QtWidgets import (QButtonGroup, QFrame, QGridLayout, QHBoxLayout,
 from PyQt5.QtCore import Qt
 
 
-class FermiMapControls_Ui(object):
+class SingleScanControls_Ui(object):
     def setupUi(self, obj):
         #####################################################################
         # set up user panel layout and give it a title
         #####################################################################
-        obj.layout_fermi_map = QVBoxLayout(obj)
+        obj.layout__single = QVBoxLayout(obj)
         obj.box_k_conv = CollapsibleBox("k conversion")
-        obj.layout_fermi_map.addWidget(obj.box_k_conv)
+        obj.layout__single.addWidget(obj.box_k_conv)
 
         #####################################################################
         # set selections for converting to k-space
@@ -112,13 +112,7 @@ class FermiMapControls_Ui(object):
         ###################################################################
 
         obj.box_plot_editor = CollapsibleBox("Plot Editor")
-        obj.layout_fermi_map.addWidget(obj.box_plot_editor)
-
-        obj.lbl_plot = Label("Select Subplot")
-        obj.cbox_plot = ComboBox()
-        obj.cbox_plot.addItem("perp vs. energy")
-        obj.cbox_plot.addItem("slit vs. energy")
-        obj.cbox_plot.addItem("slit vs. perp")
+        obj.layout__single.addWidget(obj.box_plot_editor)
 
         obj.bttngrp3 = QButtonGroup()
         obj.rdbttn_pyplot_stylesheet = QRadioButton("Personal\nStylesheet")
@@ -236,13 +230,10 @@ class FermiMapControls_Ui(object):
         obj.layout_colormap_normalization.addWidget(obj.cbox_normalization)
         obj.box_plot_editor.setContentLayout(obj.layout_plot_tools)
 
-        obj.bttn_open_dewarping_tool = QPushButton("Open Dewarping Tool")
-        obj.layout_fermi_map.addWidget(obj.bttn_open_dewarping_tool)
-
         #######################################################################
         # text area for giving updates the user can see
         #######################################################################
 
         obj.text_area = QTextEdit("~~~Read Only information for user~~~")
         obj.text_area.setReadOnly(True)
-        obj.layout_fermi_map.addWidget(obj.text_area)
+        obj.layout__single.addWidget(obj.text_area)

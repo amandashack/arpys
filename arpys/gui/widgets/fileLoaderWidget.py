@@ -6,10 +6,16 @@ from PyQt5.QtWidgets import QFrame, QMessageBox, QFileDialog
 import sys, types, importlib.util
 from collections import defaultdict
 from pathlib import Path
+import xarray as xr
+import numpy as np
 log = logging.getLogger(__name__)
 
 BASEDIR = Path(__file__).resolve().parents[2].joinpath('loaders')
 DATADIR = Path(__file__).resolve().parents[4].joinpath('data/ssrl_071522')
+
+# TODO: if the graph loads, close the window, if not give another popup
+#  that says the issue and let them try again
+
 
 class FileLoaderWidget(QFrame, FileLoaderWidget_Ui):
     def __init__(self, context, signals):
@@ -18,6 +24,7 @@ class FileLoaderWidget(QFrame, FileLoaderWidget_Ui):
         self.context = context
         self.setupUi(self)
         self.cur_file = ""
+        self.plot_type = ""
         self.beamline_options = {}
         self.beamline_loaders = defaultdict(dict)
         self.make_connections()
@@ -58,27 +65,98 @@ class FileLoaderWidget(QFrame, FileLoaderWidget_Ui):
         self.cbox_loader_type.addItems(self.get_loaders(option))
 
     def handle_select(self):
-        print(DATADIR)
+        #qd = QFileDialog()
+        #qd.setDirectory(DATADIR)
         file = QFileDialog.getOpenFileName(self, 'Open File') # , directory=DATADIR)
         self.le_select_file.setText(list(file)[0])
         self.cur_file = list(file)[0]
 
+    @staticmethod
+    def fix_array(ar, scan_type):
+        """
+        make your array uniform based on what type of scan it is
+        :param ar: input xarray
+        :param scan_type: the scan type can be "hv_scan"
+        :return: the fixed array
+        """
+
+        def np_transpose(xar, tr):
+            """Transpose the RegularSpacedData
+            :param xar: starting xarray
+            :param tr: list of the new transposed order
+            """
+            coords = {}
+            dims = []
+            for i in tr:
+                name = list(xar.dims)[i]
+                coords[name] = xar[name].values
+                dims.append(list(xar.dims)[i])
+            return xr.DataArray(np.transpose(xar.data, tr), dims=dims, coords=coords)
+        if scan_type == "hv_scan":
+            photon_energy = ar.photon_energy.values
+            slit = ar.slit.values
+            energy = ar.energy.values
+            size_new = [len(photon_energy), len(slit), len(energy)]
+            size_ar = list(ar.values.shape)
+            tr = [size_ar.index(i) for i in size_new]
+            print(size_new, size_ar, tr)
+            return np_transpose(ar, tr)
+        if scan_type == "fermi_map":
+            slit = ar.slit.values
+            perp = ar.perp.values
+            energy = ar.energy.values
+            size_new = [len(slit), len(perp), len(energy)]
+            size_ar = list(ar.values.shape)
+            tr = [size_ar.index(i) for i in size_new]
+            print(size_new, size_ar, tr)
+            return np_transpose(ar, tr)
+
     def determine_information(self, x):
-        dims = list(x.dims)
-        if all(dims) in ['photon_energy', 'slit', 'energy']:
-            print("here is where you would fix the array")
-            #fix_array(x, 'hv_scan')
+        """
+        Determine what tab the plot should go to.
+        Parameters
+        ----------
+        x
+
+        Returns
+        -------
+
+        """
+        dims = sorted(list(x.dims))
+        hv_scan = sorted(['photon_energy', 'slit', 'energy'])
+        fermi_map = sorted(['slit', 'perp', 'energy'])
+        single = sorted(['slit', 'energy'])
+        if dims == hv_scan:
+            x = self.fix_array(x, 'hv_scan')
+            self.plot_type = "hv_scan"
+        elif dims == fermi_map:
+            x = self.fix_array(x, 'fermi_map')
+            self.plot_type = "fermi_map"
+        elif dims == single:
+            x = self.fix_array(x, 'single')
+            self.plot_type = "single"
+        return x
 
     def handle_load(self):
         option = self.cbox_beamline.currentText()
         loader = self.cbox_loader_type.currentText()
         func = self.get_loader(option, loader)
         #QMessageBox.information(self, 'Load', repr(func))
-        print(self.cur_file)
-        xar = func(self.cur_file)
-        self.determine_information(xar)
-        # need to determine here what tab it should be loaded into
-        # for now I am just going to try hard coding to work with FMs
-        self.context.upload_fm_data(xar)
+        try:
+            xar = func(self.cur_file)
+            xar = self.determine_information(xar)
+            if self.plot_type == "hv_scan":
+                self.context.upload_hv_data(xar)
+            elif self.plot_type == "fermi_map":
+                self.context.upload_fm_data(xar)
+            elif self.plot_type == "single":
+                self.context.upload_ss_data(xar)
+            self.signals.closeLoader.emit()
+        except Exception as e:
+            print("There was an exception while trying to load in file: " + self.cur_file, " \nException: ", Exception)
+            print("Try again... make sure you have the correct loader selected. "
+                  "If you do, it may not be working properly")
+
+
 
 
