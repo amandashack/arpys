@@ -1,7 +1,8 @@
 import logging
 
 from gui.widgets.fmControlsWidgetUi import FermiMapControls_Ui
-from PyQt5.QtWidgets import QFrame
+from PyQt5.QtWidgets import QFrame, QFontDialog, QColorDialog
+from PyQt5.QtGui import QFont
 
 log = logging.getLogger(__name__)
 
@@ -12,6 +13,7 @@ class FermiMapControlsWidget(QFrame, FermiMapControls_Ui):
         self.signals = signals
         self.context = context
         self.setupUi(self)
+        self.lines = {}
         self.set_k_space_options()
         self.set_plot_options()
         self.make_connections()
@@ -25,6 +27,9 @@ class FermiMapControlsWidget(QFrame, FermiMapControls_Ui):
 
     def set_plot_options(self):
         self.rdbttn_custom_stylesheet.setChecked(self.context.custom_stylesheet)
+        self.le_workfunction.setText(str(self.context.work_function))
+        self.le_inner_potential.setText(str(self.context.inner_potential))
+        self.le_photon_energy.setText(str(self.context.master_dict["hv"]["fermi_map"]))
         self.le_xmin.setText(str(self.context.master_dict["x_min"]["fermi_map"]))
         self.le_xmax.setText(str(self.context.master_dict['x_max']["fermi_map"]))
         self.le_ymin.setText(str(self.context.master_dict['y_min']['fermi_map']))
@@ -44,6 +49,9 @@ class FermiMapControlsWidget(QFrame, FermiMapControls_Ui):
         self.le_across_slit_offset.checkVal.connect(self.context.update_axslit_offset)
         self.le_along_slit_offset.checkVal.connect(self.context.update_alslit_offset)
         self.le_azimuth_offset.checkVal.connect(self.context.update_azimuth_offset)
+        self.le_workfunction.checkVal.connect(lambda x: self.context.update_work_function(x, "fermi_map"))
+        self.le_inner_potential.checkVal.connect(lambda x: self.context.update_inner_potential(x, "fermi_map"))
+        self.le_photon_energy.checkVal.connect(lambda x: self.context.update_photon_energy(x, "fermi_map"))
         self.le_xmin.checkVal.connect(lambda x: self.context.update_xmin(x, "fermi_map"))
         self.le_xmax.checkVal.connect(lambda x: self.context.update_xmax(x, "fermi_map"))
         self.le_ymin.checkVal.connect(lambda x: self.context.update_ymin(x, "fermi_map"))
@@ -59,12 +67,67 @@ class FermiMapControlsWidget(QFrame, FermiMapControls_Ui):
         self.bttngrp2.buttonClicked.connect(self.checkBttn)
         self.bttngrp3.buttonClicked.connect(self.checkBttn)
         self.bttngrp4.buttonClicked.connect(self.checkBttn)
+        self.bttn_font.pressed.connect(self.choose_font)
+        self.bttn_color.pressed.connect(self.choose_color)
+        self.le_line_pos.checkVal.connect(self.choose_line_pos)
+        self.bttn_add_line.pressed.connect(self.add_line)
+        self.cbox_lines.currentIndexChanged.connect(self.set_line_options)
+        self.bttn_open_dewarping_tool.pressed.connect(self.start_dewarping)
 
     def start_dewarping(self):
         self.context.start_dewarper("fermi_map")
 
     def update_xyt(self):
         self.context.update_xyt("fermi_map")
+
+    def update_line(self):
+        self.context.update_lines(self.lines, "fermi_map")
+
+    def choose_font(self):
+        font, valid = QFontDialog.getFont()
+        if valid:
+            self.lbl_font.setFont(font)
+            self.lbl_font.setText(font.family())
+            self.lines[self.cbox_lines.currentIndex()]['font'] = font
+            self.update_line()
+
+    def choose_color(self):
+        color = QColorDialog().getColor()
+        self.lines[self.cbox_lines.currentIndex()]['color'] = color.name()
+        self.lbl_color.setStyleSheet("QWidget { background-color: %s}" % color)
+        self.update_line()
+
+    def choose_line_pos(self, p):
+        self.lines[self.cbox_lines.currentIndex()]["position"] = p
+        self.update_line()
+
+    def build_dict(self, id, vert, font, color, position):
+        self.lines[id] = {"vertical": vert, "font": font, "color": color, "position": position}
+
+    def add_line(self):
+        name = self.le_line_title.text()
+        id = self.cbox_lines.count()
+        vert = self.rdbttn_vert.isChecked()
+        font = self.lbl_font.font()
+        color = self.lbl_color.palette().window().color().name()
+        position = float(self.le_line_pos.text())
+        self.build_dict(id, vert, font, color, position)
+        if vert:
+            self.cbox_lines.addItem("V: " + name)
+        else:
+            self.cbox_lines.addItem("H: " + name)
+        self.cbox_lines.setCurrentIndex(id)
+        self.update_line()
+
+    def set_line_options(self, id):
+        self.bttn_font.setEnabled(True)
+        self.bttn_color.setEnabled(True)
+        self.le_line_pos.setEnabled(True)
+        self.rdbttn_vert.setChecked(self.lines[id]["vertical"])
+        self.lbl_font.setFont(self.lines[id]["font"])
+        self.lbl_font.setText(self.lbl_font.font().family())
+        self.lbl_color.setStyleSheet("QWidget { background-color: %s}" % self.lines[id]['color'])
+        self.le_line_pos.setText(str(self.lines[id]['position']))
 
     def checkBttn(self, button):
         bttn = button.text()
@@ -91,7 +154,6 @@ class FermiMapControlsWidget(QFrame, FermiMapControls_Ui):
 
     def setDefaultStyleSheet(self):
         # This should be done with a json file
-
         self.setStyleSheet("\
             Label {\
                 qproperty-alignment: AlignCenter;\

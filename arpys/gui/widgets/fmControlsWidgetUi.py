@@ -1,7 +1,7 @@
 from gui.widgets.basicWidgets import (CollapsibleBox, ComboBox, Label,
                                             LineEdit, QHLine)
 from PyQt5.QtWidgets import (QButtonGroup, QFrame, QGridLayout, QHBoxLayout,
-                             QLCDNumber, QPushButton, QRadioButton,
+                             QLCDNumber, QPushButton, QRadioButton, QAction,
                              QSizePolicy, QTextEdit, QVBoxLayout, QLineEdit)
 from PyQt5.QtCore import Qt
 
@@ -38,10 +38,20 @@ class FermiMapControls_Ui(object):
         obj.bttngrp2.addButton(obj.rdbttn_normal, id=1)
         obj.bttngrp2.setExclusive(True)
 
+        obj.lbl_workfunction = Label("Work Function ")
+        obj.le_workfunction = LineEdit("4.2")
+        obj.lbl_inner_potential = Label("Inner Potential ")
+        obj.le_inner_potential = LineEdit("14")
+        obj.lbl_photon_energy = Label("Photon Energy (eV) ")
+        obj.le_photon_energy = LineEdit("150")
+
         # setup layout
         ##############
         obj.layout_k_conv_params = QVBoxLayout()
         obj.layout_allrdbttns = QGridLayout()
+        obj.layout_wf = QHBoxLayout()
+        obj.layout_ip = QHBoxLayout()
+        obj.layout_hv = QHBoxLayout()
         obj.layout_allrdbttns.setColumnStretch(0, 6)
         obj.layout_allrdbttns.setColumnStretch(1, 1)
         obj.layout_allrdbttns.setRowStretch(1, 5)
@@ -51,7 +61,16 @@ class FermiMapControls_Ui(object):
         obj.layout_allrdbttns.addWidget(obj.rdbttn_normal, 1, 1, 1, 2)
         obj.layout_allrdbttns.setRowMinimumHeight(0, 20)
         obj.layout_allrdbttns.setRowMinimumHeight(1, 30)
+        obj.layout_wf.addWidget(obj.lbl_workfunction)
+        obj.layout_wf.addWidget(obj.le_workfunction)
+        obj.layout_ip.addWidget(obj.lbl_inner_potential)
+        obj.layout_ip.addWidget(obj.le_inner_potential)
+        obj.layout_hv.addWidget(obj.lbl_photon_energy)
+        obj.layout_hv.addWidget(obj.le_photon_energy)
         obj.layout_k_conv_params.addLayout(obj.layout_allrdbttns)
+        obj.layout_k_conv_params.addLayout(obj.layout_wf)
+        obj.layout_k_conv_params.addLayout(obj.layout_ip)
+        obj.layout_k_conv_params.addLayout(obj.layout_hv)
         obj.layout_k_conv_params.addSpacing(5)
 
         #####################################################################
@@ -238,6 +257,62 @@ class FermiMapControls_Ui(object):
 
         obj.bttn_open_dewarping_tool = QPushButton("Open Dewarping Tool")
         obj.layout_fermi_map.addWidget(obj.bttn_open_dewarping_tool)
+
+        #######################################################################
+        # toolbar for adding horizontal and vertical lines to the plot
+        #######################################################################
+
+        obj.box_plot_editor = CollapsibleBox("Line Editor")
+        obj.layout_fermi_map.addWidget(obj.box_plot_editor)
+
+        obj.cbox_lines = ComboBox()
+        obj.bttn_add_line = QPushButton("Add Line")
+        obj.bttn_delete_line = QPushButton("Delete Line")
+        obj.lbl_line_title = Label("Line Title")
+        obj.le_line_title = QLineEdit()
+        obj.bttngrp5 = QButtonGroup()
+        obj.bttngrp5.setExclusive(True)
+        obj.rdbttn_vert = QRadioButton("Vertical")
+        obj.rdbttn_hor = QRadioButton("Horizontal")
+        obj.rdbttn_vert.setChecked(True)
+
+        obj.bttn_font = QPushButton("Choose Font")
+        obj.lbl_font = Label("Default Font")
+        obj.bttn_font.setEnabled(False)
+
+        obj.bttn_color = QPushButton("Choose Color")
+        obj.lbl_color = Label("Line Color")
+        obj.bttn_color.setEnabled(False)
+
+        obj.lbl_line_pos = Label("Line Position ")
+        obj.le_line_pos = LineEdit("0")
+        obj.le_line_pos.setEnabled(False)
+
+        obj.layout_graph_adds = QVBoxLayout()
+        obj.layout_add_line = QGridLayout()
+        obj.layout_font = QHBoxLayout()
+
+        obj.hline5 = QHLine()
+        obj.layout_add_line.addWidget(obj.bttn_font, 0, 0, 1, 1)
+        obj.layout_add_line.addWidget(obj.lbl_font, 0, 1, 1, 1)
+        obj.layout_add_line.addWidget(obj.bttn_color, 1, 0, 1, 1)
+        obj.layout_add_line.addWidget(obj.lbl_color, 1, 1, 1, 1)
+        obj.layout_add_line.addWidget(obj.lbl_line_pos, 2, 0, 1, 1)
+        obj.layout_add_line.addWidget(obj.le_line_pos, 2, 1, 1, 1)
+        obj.layout_add_line.addWidget(obj.hline5, 3, 0, 1, 2)
+        obj.layout_add_line.addWidget(obj.cbox_lines, 4, 0, 1, 2)
+        obj.layout_add_line.addWidget(obj.rdbttn_vert, 5, 0, 1, 1)
+        obj.layout_add_line.addWidget(obj.rdbttn_hor, 5, 1, 1, 1)
+        obj.layout_add_line.addWidget(obj.lbl_line_title, 6, 0, 1, 1)
+        obj.layout_add_line.addWidget(obj.le_line_title, 6, 1, 1, 1)
+        obj.layout_add_line.addWidget(obj.bttn_add_line, 7, 0, 1, 1)
+        obj.layout_add_line.addWidget(obj.bttn_delete_line, 7, 1, 1, 1)
+        obj.layout_graph_adds.addLayout(obj.layout_font)
+        obj.layout_graph_adds.addLayout(obj.layout_add_line)
+        obj.box_plot_editor.setContentLayout(obj.layout_graph_adds)
+
+        #fontColor = QAction('Font bg Color', self)
+        #fontColor.triggered.connect(self.color_picker)
 
         #######################################################################
         # text area for giving updates the user can see

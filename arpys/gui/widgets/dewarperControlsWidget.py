@@ -23,32 +23,39 @@ class DewarperControlsWidget(QFrame, DewarperControlsWidget_Ui):
         self.signals = signals
         self.context = context
         self.scan_type = "fermi_map"
-        self.data = self.context.fm_xar_data
+        self.data = self.context.master_dict["data"]["fermi_map"]
+        self.coord1 = self.data.coords[self.data.dims[0]].values
+        self.coord2 = self.data.coords[self.data.dims[1]].values
+        self.coord3 = self.data.coords[self.data.dims[0]].values
         self.setupUi(self)
         self.make_connections()
+        self.update_allowed_positions()
 
     def make_connections(self):
-        self.lw_x_bin.valueChanged.connect(self.capture_change_x)
+        self.lw_z_bin.valueChanged.connect(self.capture_change_z)
         self.lw_y_bin.valueChanged.connect(self.capture_change_y)
 
-    def capture_change_x(self, v):
-        self.lw_x_position.setSingleStep(v)
+    def update_data(self, st):
+        self.data = self.context.master_dict['data'][st]
+        self.coord1 = self.data.coords[self.data.dims[0]].values
+        self.coord2 = self.data.coords[self.data.dims[1]].values
+        self.coord3 = self.data.coords[self.data.dims[2]].values
+        self.update_allowed_positions()
+
+    def capture_change_z(self, v):
+        self.lw_z_position.setSingleStep(v)
 
     def capture_change_y(self, v):
         self.lw_y_position.setSingleStep(v)
 
-    def update_scan_type(self, st):
-        self.scan_type = st
-        if st == "fermi_map":
-            self.data = self.context.fm_xar_data
-            self.coord1 = self.data.slit.values.tolist()
-            self.coord2 = self.data.perp.values.tolist()
-            self.coord3 = self.data.energy.values.tolist()
-            self.lw_x_position.set_values(self.coord2)
-            self.lw_x_position.setMinimum(self.lw_x_position.valueFromText(min(self.coord2)))
-            self.lw_x_position.setMaximum(self.lw_x_position.valueFromText(max(self.coord2)))
+    def update_allowed_positions(self):
+        self.lw_z_position.set_values(self.coord2)
+        self.lw_z_position.setMinimum(self.lw_z_position.valueFromText(min(self.coord2)))
+        self.lw_z_position.setMaximum(self.lw_z_position.valueFromText(max(self.coord2)))
+        self.lw_z_position.valueFromText(str(self.coord2.tolist()[0]))
 
-            self.lw_y_position.set_values(self.coord1)
-            self.lw_y_position.setMinimum(self.lw_y_position.valueFromText(min(self.coord1)))
-            self.lw_y_position.setMaximum(self.lw_y_position.valueFromText(max(self.coord1)))
+        self.lw_y_position.set_values(self.coord1)
+        self.lw_y_position.setMinimum(self.lw_y_position.valueFromText(min(self.coord1)))
+        self.lw_y_position.setMaximum(self.lw_y_position.valueFromText(max(self.coord1)))
+        self.lw_y_position.valueFromText(str(self.coord1.tolist()[0]))
 

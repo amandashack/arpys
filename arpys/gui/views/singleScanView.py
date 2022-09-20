@@ -1,7 +1,7 @@
 import logging
 
 from gui.widgets.ssControlsWidget import SingleScanControlsWidget
-from gui.widgets.fmImageWidget import FermiMapImageWidget
+from gui.widgets.ssImageWidget import SSImageWidget
 from PyQt5.QtWidgets import QHBoxLayout, QWidget
 
 log = logging.getLogger('pydm')
@@ -28,7 +28,7 @@ class SingleScanView(QWidget):
         pass
 
     def create_image_widget(self):
-        self.imageWidget = FermiMapImageWidget(self.context, self.signals)
+        self.imageWidget = SSImageWidget(self.context, self.signals, "single")
 
     def create_editor_widget(self):
         self.editorWidget = SingleScanControlsWidget(self.context, self.signals)

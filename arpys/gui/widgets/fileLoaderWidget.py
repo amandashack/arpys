@@ -110,6 +110,13 @@ class FileLoaderWidget(QFrame, FileLoaderWidget_Ui):
             tr = [size_ar.index(i) for i in size_new]
             print(size_new, size_ar, tr)
             return np_transpose(ar, tr)
+        if scan_type == "single":
+            slit = ar.slit.values
+            energy = ar.energy.values
+            size_new = [len(slit), len(energy)]
+            size_ar = list(ar.values.shape)
+            tr = [size_ar.index(i) for i in size_new]
+            return np_transpose(ar, tr)
 
     def determine_information(self, x):
         """
@@ -146,14 +153,14 @@ class FileLoaderWidget(QFrame, FileLoaderWidget_Ui):
             xar = func(self.cur_file)
             xar = self.determine_information(xar)
             if self.plot_type == "hv_scan":
-                self.context.upload_hv_data(xar)
+                self.context.upload_data(xar, "hv_scan")
             elif self.plot_type == "fermi_map":
-                self.context.upload_fm_data(xar)
+                self.context.upload_data(xar, "fermi_map")
             elif self.plot_type == "single":
-                self.context.upload_ss_data(xar)
+                self.context.upload_data(xar, "single")
             self.signals.closeLoader.emit()
         except Exception as e:
-            print("There was an exception while trying to load in file: " + self.cur_file, " \nException: ", Exception)
+            print("There was an exception while trying to load in file: " + self.cur_file, " \nException: ", e)
             print("Try again... make sure you have the correct loader selected. "
                   "If you do, it may not be working properly")
 

@@ -38,8 +38,9 @@ class PushButton(QPushButton):
 
 class HLineItem(QGraphicsLineItem):
 
-    def __init__(self):
+    def __init__(self, signals):
         super(HLineItem, self).__init__()
+        self.signals = signals
         self.setPen(QPen(Qt.red, 3))
         self.setFlag(QGraphicsLineItem.ItemIsMovable)
         self.setCursor(Qt.OpenHandCursor)
@@ -54,11 +55,17 @@ class HLineItem(QGraphicsLineItem):
                            orig_cursor_position.y() + orig_position.y()
         self.setPos(QPointF(orig_position.x(), updated_cursor_y))
 
+    def mouseReleaseEvent(self, event):
+        y_pos = event.scenePos().y()
+        self.signals.hbttnReleased.emit(y_pos)
+
 
 class VLineItem(QGraphicsLineItem):
 
-    def __init__(self):
+    def __init__(self, signals, id):
         super(VLineItem, self).__init__()
+        self.signals = signals
+        self.id = id
         self.setPen(QPen(Qt.blue, 3))
         self.setFlag(QGraphicsLineItem.ItemIsMovable)
         self.setCursor(Qt.OpenHandCursor)
@@ -73,6 +80,10 @@ class VLineItem(QGraphicsLineItem):
                            orig_cursor_position.x() + orig_position.x()
         self.setPos(QPointF(updated_cursor_x, orig_position.y()))
 
+    def mouseReleaseEvent(self, event):
+        x_pos = event.scenePos().x()
+        self.signals.vbttnReleased.emit(x_pos, self.id)
+
 
 class SpinBox(QSpinBox):
     def __init__(self, parent=None):
@@ -80,7 +91,7 @@ class SpinBox(QSpinBox):
         self.indicies = {}
         self.values = []
         self.set_values(self.values)
-        #self.setValue(0)
+        self.setKeyboardTracking(False)
 
     def values(self):
         return self.values

@@ -109,14 +109,14 @@ def np_transpose(xar, tr):
         dims.append(list(xar.dims)[i])
     return xr.DataArray(np.transpose(xar.data, tr), dims=dims, coords=coords)
 
-
+"""
 def fix_array(ar, scan_type):
-    """
-    make your array uniform based on what type of scan it is
-    :param ar: input xarray
-    :param scan_type: the scan type can be "hv_scan"
-    :return: the fixed array
-    """
+    
+    #make your array uniform based on what type of scan it is
+    #:param ar: input xarray
+    #:param scan_type: the scan type can be "hv_scan"
+    #:return: the fixed array
+    
     if scan_type == "hv_scan":
         photon_energy = ar.photon_energy.values
         slit = ar.slit.values
@@ -130,6 +130,59 @@ def fix_array(ar, scan_type):
         perp = ar.perp.values
         energy = ar.energy.values
         size_new = [len(slit), len(perp), len(energy)]
+        size_ar = list(ar.values.shape)
+        tr = [size_ar.index(i) for i in size_new]
+        return np_transpose(ar, tr)
+"""
+
+
+def fix_array(ar, scan_type):
+    """
+    make your array uniform based on what type of scan it is
+    :param ar: input xarray
+    :param scan_type: the scan type can be "hv_scan"
+    :return: the fixed array
+    """
+
+    def np_transpose(xar, tr):
+        """Transpose the RegularSpacedData
+        :param xar: starting xarray
+        :param tr: list of the new transposed order
+        """
+        coords = {}
+        dims = []
+        for i in tr:
+            name = list(xar.dims)[i]
+            coords[name] = xar[name].values
+            dims.append(list(xar.dims)[i])
+        return xr.DataArray(np.transpose(xar.data, tr), dims=dims, coords=coords)
+
+    if scan_type == "hv_scan":
+        photon_energy = ar.photon_energy.values
+        slit = ar.slit.values
+        energy = ar.energy.values
+        size_new = [len(photon_energy), len(slit), len(energy)]
+        size_ar = list(ar.values.shape)
+        tr = [size_ar.index(i) for i in size_new]
+        print(size_new, size_ar, tr)
+        return np_transpose(ar, tr)
+    if scan_type == "fermi_map":
+        slit = ar.slit.values
+        perp = ar.perp.values
+        energy = ar.energy.values
+        size_new = [len(slit), len(perp), len(energy)]
+        size_ar = list(ar.values.shape)
+        if size_new == size_ar:
+            size_new = ar.coords.keys()
+            before = list(ar.dims)
+            tr = [before.index(i) for i in size_new]
+        else:
+            tr = [size_ar.index(i) for i in size_new]
+        return np_transpose(ar, tr)
+    if scan_type == "single":
+        slit = ar.slit.values
+        energy = ar.energy.values
+        size_new = [len(slit), len(energy)]
         size_ar = list(ar.values.shape)
         tr = [size_ar.index(i) for i in size_new]
         return np_transpose(ar, tr)
@@ -193,129 +246,34 @@ def k_reverse_normal_partial(kx, hv, be, wf):
     return theta
 
 
-def my_dewarp(spectra, ef_pos):
+def normalize_scan(scan, d, key):
     """
-    dewarping for a given spectra by passing
-    in the fermi level curve
-    :param spectra:
-    :param ef_pos:
-    :return:
-    """
-    #  ef_pos = dewarp(spectra.coords['slit'].values)
-    ef_min = np.min(ef_pos)
-    ef_max = np.max(ef_pos)
-    de = spectra.coords['energy'].values[1] - spectra.coords['energy'].values[0]
-    px_to_remove = int(round((ef_max - ef_min) / de))
-    dewarped = np.empty((spectra.coords['slit'].size, spectra.coords['energy'].size - px_to_remove))
-    for i in range(spectra.coords['slit'].size):
-        rm_from_bottom = int(round((ef_pos[i] - ef_min) / de))
-        rm_from_top = spectra.coords['energy'].size - (px_to_remove - rm_from_bottom)
-        dewarped[i, :] = spectra.values[i, rm_from_bottom:rm_from_top]
-    bottom_energy_offset = int(round((ef_max - ef_min) / de))
-    energy = spectra.coords['energy'].values[bottom_energy_offset:]
-    dw_data = xr.DataArray(dewarped, coords={'energy': energy, 'slit': spectra.coords['slit'].values},
-                           dims=['slit', 'energy'], attrs=spectra.attrs)
-    dw_new_ef = dw_data['energy'] - ef_max
-    dw_data = dw_data.assign_coords({'energy': dw_new_ef})
-    return dw_data
-
-
-def normalize_hvscan(hvscan, x0, x1, e0, e1):
-    """
-    break hvscan into each photon energy and normalize to integrate intensity
-    :param hvscan:
+    break scan into each photon energy and normalize to integrate intensity
+    :param scan:
     :param x0: lower slit position
     :param x1: upper slit position
     :param e0: lower energy range
     :param e1: upper energy range
     :return:
     """
-    hv_cuts = []
-    for hv in hvscan['photon_energy']:
-        hv_cut = hvscan.sel({'photon_energy': hv}, method='nearest')
-        hv_cut_cr = hv_cut.sel({'energy': slice(e0, e1)}).sel({'slit': slice(x0, x1)})
-        sum_thing = hv_cut_cr.sum('slit')
+    dims = list(d.keys())
+    cuts = []
+    for val in scan[key]:
+        cut = scan.sel({key: val}, method='nearest')
+        cut_cr = cut.sel({dims[0]: slice(d[dims[0]][0], d[dims[0]][1])}).sel(
+            {dims[1]: slice(d[dims[1]][0], d[dims[1]][1])})
+        sum_thing = cut_cr.sum(dims[0])
         sum_thing2 = np.sum(sum_thing.values.astype('int64'))
-        area = hv_cut_cr.energy.size * hv_cut_cr.slit.size
+        area = cut_cr[dims[1]].values.size * cut_cr[dims[0]].values.size
         average = sum_thing2 / area
-        hv_cut_normed = hv_cut / average
-        hv_cuts.append(hv_cut_normed)
+        cut_normed = cut / average
+        st = standardize(cut_normed)
+        cuts.append(st)
 
-    hv_scan_normed = xr.concat(hv_cuts, 'photon_energy')
-    hv_scan_normed = hv_scan_normed.assign_coords({'photon_energy': hvscan['photon_energy']})
-    hv_scan_normed = fix_array(hv_scan_normed, scan_type="hv_scan")
-    return hv_scan_normed
-
-
-def dewarp_2d(spectrum_2d, e0, e1, x1, x2, ds, de, fermi_model, fermi_params, r2_threshold):
-    """
-    dewarps the spectrum fermi level for a selected photon energy by using the generated
-    fermi model. First a list of ef guesses are made and then a dewarp curve is generated using polyfit
-    and then sent into my_dewarp.
-    :param spectrum_2d: scans.sel({'photon_energy': hv}, method='nearest')
-    :param e0:
-    :param e1:
-    :param x1:
-    :param x2:
-    :param ds:
-    :param de:
-    :param fermi_model:
-    :param fermi_params:
-    :param r2_threshold:
-    :return:
-    """
-    spectrum_2d_crop = spectrum_2d.sel({'energy': slice(e0, e1)}).sel({'slit': slice(x1, x2)})
-    spectrum_2d_crop_downsample_slit = spectrum_2d_crop.arpes.downsample({'slit': ds})
-    spectrum_2d_crop_downsample = spectrum_2d_crop_downsample_slit.arpes.downsample({'energy': de})
-    angle = spectrum_2d['slit']
-    angle_downsample = spectrum_2d_crop_downsample['slit']
-    ene_downsample = spectrum_2d_crop_downsample['energy']
-    init_params = fermi_params
-    ef_downsample = []
-    ef_sigma = []
-    i = 0
-    for theta in angle_downsample:
-        edc_xr = spectrum_2d_crop_downsample.sel({'slit': theta}, method='nearest')
-        edc_vals = edc_xr.values
-        fit_result = fermi_model.fit(edc_vals, fermi_params, x=ene_downsample)
-        fermi_params = fit_result.params
-        ef_value = fermi_params['fermi_center'].value
-        ef_error = fermi_params['fermi_center'].stderr
-        fit_result_points = fermi_model.eval(fermi_params, x=ene_downsample)
-        r2 = 1 - (fit_result.residual.var() / np.var(fit_result_points))
-        if r2 < r2_threshold:
-            ef_value = np.NaN
-            ef_error = np.NaN
-            fermi_params = init_params
-
-        else:
-            i += 1
-
-        ef_downsample.append(ef_value)
-        ef_sigma.append(ef_error)
-
-    if i < 5:
-        print('i was less than 5')
-        ef_downsample = []
-        ef_sigma = []
-        for theta in angle_downsample:
-            edc_xr = spectrum_2d_crop_downsample.sel({'slit': theta}, method='nearest')
-            ef_value = edc_xr.arpes.guess_ef()
-            ef_downsample.append(ef_value)
-            ef_sigma.append(1)
-
-    aa = np.array(angle_downsample)
-    ee = np.array(ef_downsample)
-    clean_ef = np.isfinite(aa) & np.isfinite(ee)
-    ww = 1.0 / ((np.array(ef_sigma)) ** 2)
-    p = np.polyfit(aa[clean_ef], ee[clean_ef], 2, w=ww)
-    dw_curve = np.poly1d(p)
-    # dw_curve= arpys.Arpes.make_dewarp_curve(aa[clean_ef], ee[clean_ef])
-    # modify this to add weights to the fit error bars
-    ef = dw_curve(angle.values)
-    spectrum_2d_dw = my_dewarp(spectrum_2d, ef)
-    return (spectrum_2d_dw, angle_downsample, ef_downsample, ef,
-            spectrum_2d_crop_downsample, ef_sigma)
+    scan_normed = xr.concat(cuts, key)
+    scan_normed = scan_normed.assign_coords({key: scan[key]})
+    scan_normed = fix_array(scan_normed, scan_type="fermi_map")
+    return scan_normed
 
 
 def standardize(ar):
@@ -324,74 +282,10 @@ def standardize(ar):
     :param ar: xarray with data
     :return: xarray standardized to between 0 and 1
     """
-    data_values = ar.values
-    w_max = np.nanmax(data_values)
-    w_min = np.nanmin(data_values)
-    nr_values = (ar.values - w_min) / (w_max - w_min)
-    slit = ar.slit.values
-    energy = ar.energy.values
-    photon_energy = ar.photon_energy.values
-    n = xr.DataArray(nr_values, dims=('photon_energy', 'slit', 'energy'),
-                     coords={'photon_energy': photon_energy, 'slit': slit, 'energy': energy})
-    #n = xr.DataArray(nr_values, coords={'photon_energy': photon_energy, 'energy': energy, 'slit': slit},
-    #                 dims=['photon_energy', 'energy', 'slit'])
-    return n
-
-
-def generate_fit(edc, window_min, window_max):
-    """
-    Generate the fit for one EDC given a specified window
-    :param edc:
-    :param window_min:
-    :param window_max:
-    :return:
-    """
-    fermi_func = ThermalDistributionModel(prefix='fermi_', form='fermi')
-    params_ = fermi_func.make_params()
-    temp = 13.6  # Temperature of map
-    k = 8.617333e-5  # Boltzmann in ev/K
-    params_['fermi_kt'].set(value=k * temp, vary=True, max=0.03, min=0.001)
-    params_['fermi_center'].set(value=0.1, max=0.15, vary=True)
-    params_['fermi_amplitude'].set(value=1, vary=False)
-
-    linear_back = LinearModel(prefix='linear_')
-    params_.update(linear_back.make_params())
-    params_['linear_slope'].set(value=-.1, max=50, vary=False)
-    params_['linear_intercept'].set(value=1, vary=True)
-
-    constant = ConstantModel(prefix='constant_')
-    params_.update(constant.make_params())
-    params_['constant_c'].set(value=0.002, max=100)
-
-    full_model = linear_back * fermi_func + constant
-    window = edc.sel({'energy': slice(window_min, window_max)})
-    energies = window.energy.values
-    # dos = window.values
-    init = full_model.eval(params_, x=energies)
-    out_ = full_model.fit(init, params_, x=energies)
-    params_ = out_.params
-    return full_model, out_, params_
-
-
-def ef_guess_for_edc(scan, e0, e1, dx, ne):
-    """
-    :param scan:
-    :param e0:
-    :param e1:
-    :param dx:
-    :param ne:
-    :return:
-    """
-    ef_guess = []
-    for hv in scan['photon_energy']:
-        im = scan.sel({'photon_energy': hv}, method='nearest')
-        im_cr = im.sel({'energy': slice(e0, e1)}).sel({'slit': slice(-dx, dx)})
-        im_cr_ds = im_cr.arpes.downsample({'energy': ne})
-
-        edc = im_cr_ds.sum('slit')
-        ef_est = edc.arpes.guess_ef()
-        ef_guess.append(ef_est)
-    return ef_guess
+    w_max = float(np.nanmax(ar))
+    w_min = float(np.nanmin(ar))
+    nr_values = (ar - w_min) / (w_max - w_min)
+    return nr_values
 
 
 def find_spacing(mm, hv, ke, slit, inner_potential=14, num_x=None, num_z=None, partial=False):
@@ -596,24 +490,220 @@ def convert_partial_3d_normal_emission(scans, inner_potential=14, wf=4.2, num_x=
                                 'energy': binding_energy})
 
 
-def run_dewarp(scans, ef_guess, m, p):
-    hv_scans_dewarped = []
+def generate_fit(edc, window_min, window_max, fp):
+    """
+    Generate the fit for one EDC given a specified window
+    :param edc:
+    :param window_min:
+    :param window_max:
+    :param fp: fit parameters for setting values in this function
+    :return:
+    """
+    fermi_func = ThermalDistributionModel(prefix='fermi_', form='fermi')
+    params_ = fermi_func.make_params()
+    temp = float(fp[0][0])  # Temperature of map
+    k = 8.617333e-5  # Boltzmann in ev/K
+    params_['fermi_kt'].set(value=k * temp, vary=bool(fp[1][0]), max=float(fp[1][1]), min=float(fp[1][2]))
+    params_['fermi_center'].set(value=float(fp[2][0]), max=float(fp[2][1]), vary=bool(fp[2][2]))
+    params_['fermi_amplitude'].set(value=float(fp[3][0]), vary=bool(fp[3][1]))
+
+    linear_back = LinearModel(prefix='linear_')
+    params_.update(linear_back.make_params())
+    params_['linear_slope'].set(value=float(fp[4][0]), max=float(fp[4][1]), vary=bool(fp[4][2]))
+    params_['linear_intercept'].set(value=float(fp[5][0]), vary=bool(fp[5][1]))
+
+    constant = ConstantModel(prefix='constant_')
+    params_.update(constant.make_params())
+    params_['constant_c'].set(value=float(fp[6][0]), max=float(fp[6][1]))
+
+    full_model = linear_back * fermi_func + constant
+    window = edc.sel({'energy': slice(window_min, window_max)})
+    energies = window.energy.values
+    # dos = window.values
+    init = full_model.eval(params_, x=energies)
+    out_ = full_model.fit(init, params_, x=energies)
+    params_ = out_.params
+    return full_model, out_, params_
+
+
+def ef_guess_for_edc(scan, dim_key, e0, e1, offset=0, ndown=2, scan_info=["hv_scan", 14]):
+    """
+    :param scan: the full 3D scan
+    :param dim_key: the key to use for looping
+    :param e0: bottom of the energy range to select
+    :param e1: top of the energy range to select
+    :param offset: amount to offset the dx range by
+    :param ndown: number of points to use to downsample
+    :param scan_info: a list with the type of scan and either
+    the spacing or the radius
+    :return:
+    """
+    r = None
+    if scan_info[0] == "hv_scan":
+        dx = scan_info[1]
+    elif scan_info[0] == "fermi_map":
+        r = scan_info[1]
+    ef_guess = []
+    for val in scan[dim_key]:
+        if r:
+            dx = math.sqrt((r)**2 - (val)**2)
+        im = scan.sel({dim_key: val}, method='nearest')
+        im_cr = im.sel({'energy': slice(e0, e1)}).sel({'slit': slice(-dx + offset, dx + offset)})
+        im_cr_ds = im_cr.arpes.downsample({'energy': ndown})
+
+        edc = im_cr_ds.sum('slit')
+        ef_est = edc.arpes.guess_ef()
+        ef_guess.append(ef_est)
+    return ef_guess
+
+
+def my_dewarp(spectra, ef_pos):
+    """
+    dewarping for a given spectra by passing
+    in the fermi level curve
+    :param spectra:
+    :param ef_pos:
+    :return:
+    """
+    #  ef_pos = dewarp(spectra.coords['slit'].values)
+    ef_min = np.min(ef_pos)
+    ef_max = np.max(ef_pos)
+    de = spectra.coords['energy'].values[1] - spectra.coords['energy'].values[0]
+    px_to_remove = int(round((ef_max - ef_min) / de))
+    dewarped = np.empty((spectra.coords['slit'].size, spectra.coords['energy'].size - px_to_remove))
+    for i in range(spectra.coords['slit'].size):
+        rm_from_bottom = int(round((ef_pos[i] - ef_min) / de))
+        rm_from_top = spectra.coords['energy'].size - (px_to_remove - rm_from_bottom)
+        dewarped[i, :] = spectra.values[i, rm_from_bottom:rm_from_top]
+    bottom_energy_offset = int(round((ef_max - ef_min) / de))
+    energy = spectra.coords['energy'].values[bottom_energy_offset:]
+    dw_data = xr.DataArray(dewarped, coords={'energy': energy, 'slit': spectra.coords['slit'].values},
+                           dims=['slit', 'energy'], attrs=spectra.attrs)
+    dw_new_ef = dw_data['energy'] - ef_max
+    dw_data = dw_data.assign_coords({'energy': dw_new_ef})
+    return dw_data
+
+
+def dewarp_2d(spectrum_2d, e0, e1, x1, x2, ds, de, fermi_model, fermi_params, r2_threshold):
+    """
+    dewarps the spectrum fermi level for a selected photon energy by using the generated
+    fermi model. First a list of ef guesses are made and then a dewarp curve is generated using polyfit
+    and then sent into my_dewarp.
+    :param spectrum_2d: scans.sel({'photon_energy': hv}, method='nearest')
+    :param e0:
+    :param e1:
+    :param x1:
+    :param x2:
+    :param ds:
+    :param de:
+    :param fermi_model:
+    :param fermi_params:
+    :param r2_threshold:
+    :return:
+    """
+    spectrum_2d_crop = spectrum_2d.sel({'energy': slice(e0, e1)}).sel({'slit': slice(x1, x2)})
+    # is there a reason we don't send both of these in at the same time? Also, why was ds so much larger than de?
+    spectrum_2d_crop_downsample_slit = spectrum_2d_crop.arpes.downsample({'slit': ds})
+    spectrum_2d_crop_downsample = spectrum_2d_crop_downsample_slit.arpes.downsample({'energy': de})
+    angle = spectrum_2d['slit']
+    angle_downsample = spectrum_2d_crop_downsample['slit']
+    ene_downsample = spectrum_2d_crop_downsample['energy']
+    init_params = fermi_params
+    ef_downsample = []
+    ef_sigma = []
     i = 0
-    for hv in scans['photon_energy']:
+    for theta in angle_downsample:
+        edc_xr = spectrum_2d_crop_downsample.sel({'slit': theta}, method='nearest')
+        edc_vals = edc_xr.values
+        fit_result = fermi_model.fit(edc_vals, fermi_params, x=ene_downsample)
+        fermi_params = fit_result.params
+        ef_value = fermi_params['fermi_center'].value
+        ef_error = fermi_params['fermi_center'].stderr
+        fit_result_points = fermi_model.eval(fermi_params, x=ene_downsample)
+        r2 = 1 - (fit_result.residual.var() / np.var(fit_result_points))
+        if r2 < r2_threshold:
+            ef_value = np.NaN
+            ef_error = np.NaN
+            fermi_params = init_params
+
+        else:
+            i += 1
+
+        ef_downsample.append(ef_value)
+        ef_sigma.append(ef_error)
+
+    if i < 5:
+        print('i was less than 5')
+        ef_downsample = []
+        ef_sigma = []
+        for theta in angle_downsample:
+            edc_xr = spectrum_2d_crop_downsample.sel({'slit': theta}, method='nearest')
+            ef_value = edc_xr.arpes.guess_ef()
+            ef_downsample.append(ef_value)
+            ef_sigma.append(1)
+
+    aa = np.array(angle_downsample)
+    ee = np.array(ef_downsample)
+    clean_ef = np.isfinite(aa) & np.isfinite(ee)
+    ww = 1.0 / ((np.array(ef_sigma)) ** 2)
+    p = np.polyfit(aa[clean_ef], ee[clean_ef], 2, w=ww)
+    dw_curve = np.poly1d(p)
+    # dw_curve= arpys.Arpes.make_dewarp_curve(aa[clean_ef], ee[clean_ef])
+    # modify this to add weights to the fit error bars
+    ef = dw_curve(angle.values)
+    spectrum_2d_dw = my_dewarp(spectrum_2d, ef)
+    return (spectrum_2d_dw, angle_downsample, ef_downsample, ef,
+            spectrum_2d_crop_downsample, ef_sigma)
+
+
+def run_dewarp(scans, ef_guess, model, params, iter_key, offset=0, ndown=2,
+               scan_info=['hv_scan', 15], threshold=95):
+    """
+
+    :param scans:
+    :param ef_guess:
+    :param model:
+    :param params:
+    :param iter_key:
+    :param offset:
+    :param ndown:
+    :param scan_info:
+    :param threshold:
+    :return:
+
+    """
+    r = None
+    dx = 0
+    if scan_info[0] == "hv_scan":
+        dx = scan_info[1]
+    elif scan_info[0] == "fermi_map":
+        r = scan_info[1]
+    scans_dewarped = []
+    i = 0
+    # scans_downsample_iter_key = scans.arpes.downsample({iter_key: 5})
+    for val in scans[iter_key]:
+        print(val)
+        if r:
+            dx = math.sqrt((r)**2 - (val)**2)
+        if not dx:
+            print("dx was never assigned so setting the x spacing to 1")
+            dx = 1
         ef_ini = ef_guess[i]
-        p['fermi_center'].set(value=ef_ini, max=0.15, vary=True)
-        im_2d = scans.sel({'photon_energy': hv}, method='nearest')
-        im_2d_dw = dewarp_2d(im_2d, ef_ini - 0.12, ef_ini + 0.2, -12, 12, 50, 2, m, p, 0.95)
-        hv_scans_dewarped.append(im_2d_dw[0])
+        params['fermi_center'].set(value=ef_ini, max=0.15, vary=True)
+        im_2d = scans.sel({iter_key: val}, method='nearest')
+        im_2d_dw = dewarp_2d(im_2d, ef_ini - 0.2, ef_ini + 0.2, -dx + offset, dx + offset,
+                             50, ndown, model, params, threshold)
+        scans_dewarped.append(im_2d_dw[0])
         i += 1
-    hv_dewarp_interp = [hv_scans_dewarped[0]]
-    for scan_no in np.arange(1, len(hv_scans_dewarped)):
-        hv_dewarp_interp.append(hv_scans_dewarped[scan_no].interp_like(hv_scans_dewarped[0]))
-    hv_out = xr.concat(hv_dewarp_interp, 'photon_energy')
-    hv_out = hv_out.assign_coords({'photon_energy': scans['photon_energy']})
-    hv_out = normalize_hvscan(hv_out, -10, 10, -0.3, 0.1)
-    fix_array(hv_out, scan_type='hv_scan')
-    return hv_out
+    dewarp_interp = [scans_dewarped[0]]
+    for scan_no in np.arange(1, len(scans_dewarped)):
+        dewarp_interp.append(scans_dewarped[scan_no].interp_like(scans_dewarped[0]))
+    _out = xr.concat(dewarp_interp, iter_key)
+    _out = _out.assign_coords({iter_key: scans[iter_key]})
+    #_out = normalize_scan(_out, -10, 10, -0.3, 0.1)
+    #fix_array(_out, scan_type='hv_scan')
+    return _out
+
 
 
 def run_edc_plot(edc):

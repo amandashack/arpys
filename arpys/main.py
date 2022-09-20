@@ -13,7 +13,6 @@ log = logging.getLogger(__name__)
 class App(QApplication):
     def __init__(self, sys_argv):
         super(App, self).__init__(sys_argv)
-        log.debug("This is the mainThread")
         self.init_logging()
         self.setAttribute(Qt.AA_EnableHighDpiScaling)
         self.setStyle("Fusion")

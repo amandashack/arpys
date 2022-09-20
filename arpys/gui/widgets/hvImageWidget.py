@@ -1,5 +1,5 @@
 import logging
-from gui.widgets.fmImageWidgetUi import FMImageWidget_Ui
+from gui.widgets.hvImageWidgetUi import HVImageWidget_Ui
 from PyQt5.QtWidgets import QFrame
 from pyimagetool import RegularDataArray
 from plottingTools import PlotCanvas, PlotWidget
@@ -14,10 +14,10 @@ log = logging.getLogger(__name__)
 #  photon energy.
 
 
-class FMImageWidget(QFrame, FMImageWidget_Ui):
+class HVImageWidget(QFrame, HVImageWidget_Ui):
 
     def __init__(self, context, signals, scan_type):
-        super(FMImageWidget, self).__init__()
+        super(HVImageWidget, self).__init__()
         self.signals = signals
         self.context = context
         self.setupUi(self)
@@ -38,11 +38,9 @@ class FMImageWidget(QFrame, FMImageWidget_Ui):
         self.x_label = "$k_(x)$ ($\AA^(-1)$)"
         self.y_label = "Binding Energy"
         self.title = "Fermi Map Cut"
-        self.lines = {}
         self.work_function = 4.2
         self.inner_potential = 14
         self.photon_energy = 150
-        self.initialize_vals()
         self.initialize_canvases()
         self.connect_signals()
 
@@ -52,9 +50,10 @@ class FMImageWidget(QFrame, FMImageWidget_Ui):
         z = np.linspace(-1, 1, 51)
         xyz = np.meshgrid(x, y, z, indexing='ij')
         d = np.sin(np.pi * np.exp(-1 * (xyz[0] ** 2 + xyz[1] ** 2 + xyz[2] ** 2))) * np.cos(np.pi / 2 * xyz[1])
-        self.xar = xr.DataArray(d, coords={"slit": x, 'perp': y, "energy": z}, dims=["slit", "perp", "energy"])
+        self.xar = xr.DataArray(d, coords={"photon_energy": x, 'slit': y, "energy": z},
+                                dims=["photon_energy", "slit", "energy"])
         self.data = RegularDataArray(d, delta=[x[1] - x[0], y[1] - y[0], z[1] - z[0]], coord_min=[x[0], y[0], z[0]])
-        self.cut = self.xar.sel({"perp": 0}, method='nearest')
+        self.cut = self.xar.sel({"slit": 0}, method='nearest')
         self.imagetool = PlotWidget(self.data, layout=1)
         self.canvas = PlotCanvas()
         self.canvas.plot(self.cut.transpose())
@@ -62,8 +61,8 @@ class FMImageWidget(QFrame, FMImageWidget_Ui):
         self.layout.addWidget(self.canvas)
 
     def initialize_vals(self):
-        self.context.fm_xar_data = self.xar
-        self.context.fm_reg_data = self.data
+        self.context.hv_xar_data = self.xar
+        self.context.hv_reg_data = self.data
 
     def connect_signals(self):
         self.signals.updateData.connect(self.change_data)
@@ -76,7 +75,6 @@ class FMImageWidget(QFrame, FMImageWidget_Ui):
         self.signals.hvChanged.connect(self.update_hv)
         self.signals.axesChanged.connect(self.change_axes)
         self.signals.updateXYTLabel.connect(self.update_xyt)
-        self.signals.updateLines.connect(self.change_lines)
 
     def update_xyt(self, xyt, scan_type):
         if scan_type == self.scan_type:
@@ -97,17 +95,6 @@ class FMImageWidget(QFrame, FMImageWidget_Ui):
             self.canvas.set_xlim(self.x_min, self.x_max)
             self.canvas.set_ylim(self.y_min, self.y_max)
             self.add_canvases()
-
-    def change_lines(self, lines, scan_type):
-        if scan_type == self.scan_type:
-            self.lines = lines
-            self.handle_plotting()
-
-    def change_data(self, st):
-        if st == "fermi_map":
-            self.xar = self.context.master_dict['data'][st]
-            self.data = RegularDataArray(self.xar)
-            self.handle_plotting()
 
     def update_axslit(self, axs):
         """function for shifting across slit"""
@@ -155,8 +142,14 @@ class FMImageWidget(QFrame, FMImageWidget_Ui):
                                                        ["y_min", y_min],
                                                        ["y_max", y_max]])
 
-    def handle_plotting(self):
-        self.cut = self.xar.sel({"perp": 0}, method='nearest')
+    def change_data(self, st):
+        if st == "fhv_scan":
+            self.xar = self.context.master_dict['data']['hv_scan']
+            self.data = RegularDataArray(self.xar)
+            self.handle_plotting()
+
+    def handle_plotting(self, xar):
+        self.cut = self.xar.sel({"slit": 0}, method='nearest')
         self.ranges()
         self.refresh_plots()
 
@@ -178,17 +171,6 @@ class FMImageWidget(QFrame, FMImageWidget_Ui):
             self.canvas.plot(self.k_cut.transpose())
         else:
             self.canvas.plot(self.cut.transpose())
-        for key in range(len(self.lines)):
-            if self.lines[key]["vertical"]:
-                pos = self.lines[key]["position"]
-                color = self.lines[key]["color"]
-                #style = self.lines[key]["position"]
-                self.canvas.add_vline(pos, color)
-            elif not self.lines[key]["vertical"]:
-                pos = self.lines[key]["position"]
-                color = self.lines[key]["color"]
-                #style = self.lines[key]["position"]
-                self.canvas.add_hline(pos, color)
 
     def add_canvases(self):
         self.layout.addWidget(self.imagetool)

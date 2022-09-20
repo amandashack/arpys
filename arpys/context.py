@@ -1,11 +1,9 @@
-import json
 import logging
-import os
 import threading
 from pyimagetool import RegularDataArray
 
 import numpy as np
-import yaml
+import xarray as xr
 
 log = logging.getLogger(__name__)
 lock = threading.Lock()
@@ -25,16 +23,31 @@ class Context(object):
         self.across_slit = 0
         self.along_slit = 0
         self.azimuth = 0
+        self.work_function = 4.2
+        self.inner_potential = 14
         self.custom_stylesheet = False
         self.aspect_ratio = 1.5
         self.color_map = "viridis"
         self.auto_normalize = True
         self.normalization_type = 'linear'
-        self.master_dict = {"real_space": {"fermi_map": True, "hv_scan": True, "single": True},
+        x = np.linspace(-1, 1, 51)
+        y = np.linspace(-1, 1, 51)
+        xy = np.meshgrid(x, y, indexing='ij')
+        z = np.linspace(-1, 1, 51)
+        xyz = np.meshgrid(x, y, z, indexing='ij')
+        d = np.sin(np.pi * np.exp(-1 * (xyz[0] ** 2 + xyz[1] ** 2 + xyz[2] ** 2))) * np.cos(np.pi / 2 * xyz[1])
+        fm_xar = xr.DataArray(d, coords={"slit": x, 'perp': y, "energy": z}, dims=["slit", "perp", "energy"])
+        hv_xar = xr.DataArray(d, coords={"photon_energy": x, 'perp': y, "energy": z},
+                              dims=["photon_energy", "perp", "energy"])
+        z = np.sin(np.pi * np.exp(-1 * (xy[0] ** 2 + xy[1] ** 2))) * np.cos(np.pi / 2 * xy[1])
+        ss_xar = xr.DataArray(z, coords={"slit": x, "energy": y}, dims=["slit", "energy"])
+        self.master_dict = {"data": {"fermi_map": fm_xar, "hv_scan": hv_xar, "single": ss_xar},
+                            "real_space": {"fermi_map": True, "hv_scan": True, "single": True},
                             "normal_across_slit": {"fermi_map": True, "hv_scan": True, "single": True},
                             "across_slit": {"fermi_map": 0, "hv_scan": 0, "single": 0},
                             "along_slit": {"fermi_map": 0, "hv_scan": 0, "single": 0},
                             "azimuth": {"fermi_map": 0, "hv_scan": 0, "single": 0},
+                            "hv": {"fermi_map": 150, "hv_scan": 150, "single": 150},
                             "custom_stylesheet": {"fermi_map": False, "hv_scan": False, "single": False},
                             "x_min": {"fermi_map": -10, "hv_scan": -10, "single": -10},
                             "x_max": {"fermi_map": 10, "hv_scan": 10, "single": 10},
@@ -47,19 +60,13 @@ class Context(object):
                             "title": {"fermi_map": "Fermi Map Cut", "hv_scan": "Photon Energy Scan Cut",
                                       "single": "Single Cut"},
                             "color_map": {"fermi_map": "viridis", "hv_scan": "viridis",
-                                      "single": "viridis"}
+                                      "single": "viridis"},
+                            "lines": {"fermi_map": {}, "hv_scan": {}, "single": {}}
                             }
 
-        self.hv_reg_data = None
-        self.fm_reg_data = None
-        self.ss_reg_data = None
-        self.hv_xar_data = None
-        self.fm_xar_data = None
-        self.ss_xar_data = None
-
     def update_real_space(self, real, scan_type):
-        self.real_space = real
-        self.signals.updateRealSpace.emit(real, scan_type)
+        self.master_dict["real_space"][scan_type] = real
+        self.signals.updateRealSpace.emit()
 
     def update_normal_across_slit(self, normal):
         """defines whether the sample was oriented normal in the across slit direction"""
@@ -85,6 +92,18 @@ class Context(object):
         self.azimuth = az
         self.signals.azimuthOffset.emit(az)
 
+    def update_work_function(self, wf, scan_type):
+        self.work_function = wf
+        self.signals.workFunctionChanged.emit(wf, scan_type)
+
+    def update_inner_potential(self, ip, scan_type):
+        self.inner_potential = ip
+        self.signals.innerPotentialChanged.emit(ip, scan_type)
+
+    def update_photon_energy(self, hv, scan_type):
+        self.master_dict['hv'][scan_type] = hv
+        self.signals.hvChanged.emit()
+
     def update_all_axes(self, scan_type, ax):
         for axis in ax:
             self.master_dict[axis[0]][scan_type] = axis[1]
@@ -93,7 +112,7 @@ class Context(object):
     def send_axes(self, scan_type):
         axs = [self.master_dict["x_min"][scan_type], self.master_dict["x_max"][scan_type],
                self.master_dict["y_min"][scan_type], self.master_dict["y_max"][scan_type]]
-        self.signals.axesChanged.emit(scan_type, axs)
+        self.signals.axesChanged.emit(axs, scan_type)
 
     def update_xmin(self, xmin, scan_type):
         self.master_dict["x_min"][scan_type] = xmin
@@ -123,22 +142,15 @@ class Context(object):
     def update_xyt(self, scan_type):
         labels = [self.master_dict["x_label"][scan_type], self.master_dict["y_label"][scan_type],
                   self.master_dict["title"][scan_type]]
-        self.signals.updateXYTLabel.emit(scan_type, labels)
+        self.signals.updateXYTLabel.emit(labels, scan_type)
 
-    def upload_hv_data(self, xar):
-        self.hv_xar_data = xar
-        self.hv_reg_data = RegularDataArray(xar)
-        self.signals.hvData.emit(xar)
+    def update_lines(self, lines, scan_type):
+        self.master_dict["lines"][scan_type] = lines
+        self.signals.updateLines.emit(lines, scan_type)
 
-    def upload_fm_data(self, xar):
-        self.fm_xar_data = xar
-        self.fm_reg_data = RegularDataArray(xar)
-        self.signals.fmData.emit(xar)
-
-    def upload_ss_data(self, xar):
-        self.ss_xar_data = xar
-        self.ss_reg_data = RegularDataArray(xar)
-        self.signals.ssData.emit(xar)
+    def upload_data(self, xar, scan_type):
+        self.master_dict['data'][scan_type] = xar
+        self.signals.updateData.emit(scan_type)
 
     def start_dewarper(self, scan_type):
         self.signals.startDewarper.emit(scan_type)

@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QVBoxLayout
 
 
-class FMImageWidget_Ui(object):
+class SSImageWidget_Ui(object):
 
     def setupUi(self, obj):
         """

@@ -41,8 +41,8 @@ class PlotCanvas(FigureCanvas):
                                    QSizePolicy.Expanding,
                                    QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
-        self.data = xr.DataArray()
         self.axes = self.fig.add_subplot(111)
+        self.data = xr.DataArray()
         self.axes.yaxis.set_ticks_position('both')
         self.axes.xaxis.set_ticks_position('both')
 
@@ -57,50 +57,20 @@ class PlotCanvas(FigureCanvas):
     def set_ylim(self, ymin, ymax):
         self.axes.set_ylim(ymin, ymax)
 
+    def add_vline(self, x_pos, color):#, linestyle):
+        self.axes.axvline(x=x_pos, color=color)#, linestyle=linestyle)
+
+    def add_hline(self, x_pos, color):#, linestyle):
+        self.axes.axhline(x=x_pos, color=color)#, linestyle=linestyle)
+
     def plot(self, data):
         self.data = data
         self.data.plot(ax=self.axes)
+        self.fig.subplots_adjust(left=0.2)
+        self.fig.subplots_adjust(bottom=0.2)
         self.draw()
 
-"""
-class PlotCanvas(FigureCanvas):
 
-    def __init__(self, context, signals, parent=None, width=5, height=4, dpi=100):
-        self.context = context
-        self.signals = signals
-        self.title = self.context.title
-        self.x_label = self.context.x_label
-        self.y_label = self.context.y_label
-        self.fig = Figure(figsize=(width, height), dpi=dpi)
-        super(PlotCanvas, self).__init__(self.fig)
-        self.setParent(parent)
-        FigureCanvas.setSizePolicy(self,
-                                   QSizePolicy.Expanding,
-                                   QSizePolicy.Expanding)
-        FigureCanvas.updateGeometry(self)
-        self.make_connections()
-
-    def make_connections(self):
-        self.signals.updateXYTLabel.connect(self.update_xyt)
-
-    def update_xyt(self, x, y, t):
-        self.axes.clear()
-        self.x_label = x
-        self.y_label = y
-        self.title = t
-        self.axes.set_title(self.title)
-        self.axes.set_xlabel(self.x_label)
-        self.axes.set_ylabel(self.y_label)
-        self.plot(self.data)
-
-    def plot(self, data):
-        self.data = data
-        ax = self.fig.add_subplot(111)
-        self.data.plot(ax=ax)
-        self.draw()
-"""
-
-class fmPlotWidget(PGImageTool):
-    def __init__(self, parent=None):
-        super(fmPlotWidget, self).__init__(parent)
+class PlotWidget(PGImageTool):
+    pass
 

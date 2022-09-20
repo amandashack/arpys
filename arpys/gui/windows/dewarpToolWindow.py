@@ -17,14 +17,12 @@ class DewarperWindow(QMainWindow, DewarperWindow_Ui):
 
     def make_connections(self):
         pass
-        #self.signals.closeDewarper.connect(self.closeEvent)
 
     def create_views_and_dialogs(self):
         self.dewarper_view = DewarperView(self.context, self.signals)
 
     def set_scan_type(self, st):
-        self.dewarper_view.editorWidget.update_scan_type(st)
+        self.dewarper_view.update_scan_type(st)
 
     def closeEvent(self, e):
         self.close()
-        pass

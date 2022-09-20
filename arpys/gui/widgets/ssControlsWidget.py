@@ -59,30 +59,33 @@ class SingleScanControlsWidget(QFrame, SingleScanControls_Ui):
         self.bttngrp3.buttonClicked.connect(self.checkBttn)
         self.bttngrp4.buttonClicked.connect(self.checkBttn)
 
+    def start_dewarping(self):
+        self.context.start_dewarper("single")
+
     def update_xyt(self):
         self.context.update_xyt("single")
 
     def checkBttn(self, button):
         bttn = button.text()
         if bttn == "real space":
-            self.context.update_real_space(True)
+            self.context.update_real_space(True, "single")
         elif bttn == "k space":
-            self.context.update_real_space(False)
+            self.context.update_real_space(False, "single")
         elif bttn == "across slit normal":
-            self.context.update_normal_across_slit(True)
+            self.context.update_normal_across_slit(True, "single")
         elif bttn == "across slit off normal":
-            self.context.update_normal_across_slit(False)
+            self.context.update_normal_across_slit(False, "single")
         elif bttn == "Personal\nStylesheet":
-            self.context.update_custom_stylesheet(False)
+            self.context.update_custom_stylesheet(False, "single")
             self.cbox_stylesheet.setEnabled(True)
         elif bttn == "Custom\nStylesheet":
-            self.context.update_custom_stylesheet(True)
+            self.context.update_custom_stylesheet(True, "single")
             self.cbox_stylesheet.setEnabled(True)
             # TODO: connect pop up toolbar for stylesheet editing here
         elif bttn == "auto":
-            self.context.update_auto_normalize(True)
+            self.context.update_auto_normalize(True, "single")
         elif bttn == "custom":
-            self.context.update_auto_normalize(False)
+            self.context.update_auto_normalize(False, "single")
             # TODO: connect pop up toolbar for normalization editing here
 
     def setDefaultStyleSheet(self):

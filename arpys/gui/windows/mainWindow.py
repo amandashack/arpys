@@ -196,7 +196,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.dewarper.show()
 
     def exportData(self):
-        print("you tried to export data")
+        if self.tab_widget.currentIndex() == 0:
+            self.fermi_map_view.save_figure()
+        elif self.tab_widget.currentIndex() == 1:
+            self.single_scan_view.save_figure()
+        elif self.tab_widget.currentIndex() == 2:
+            self.hv_scan_view.save_figure()
+        else:
+            print("tried to export but something went wrong")
 
     def close(self):
         pass

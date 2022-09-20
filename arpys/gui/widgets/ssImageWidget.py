@@ -1,5 +1,5 @@
 import logging
-from gui.widgets.fmImageWidgetUi import FMImageWidget_Ui
+from gui.widgets.ssImageWidgetUi import SSImageWidget_Ui
 from PyQt5.QtWidgets import QFrame
 from pyimagetool import RegularDataArray
 from plottingTools import PlotCanvas, PlotWidget
@@ -9,25 +9,25 @@ import xarray as xr
 
 log = logging.getLogger(__name__)
 
+
 # TODO: for converting to k-space for a single cut, you must know the photon energy -
 #  Try to get it from the metadata and if not, have a pop up which asks for the
 #  photon energy.
 
 
-class FMImageWidget(QFrame, FMImageWidget_Ui):
+class SSImageWidget(QFrame, SSImageWidget_Ui):
 
     def __init__(self, context, signals, scan_type):
-        super(FMImageWidget, self).__init__()
+        super(SSImageWidget, self).__init__()
         self.signals = signals
         self.context = context
         self.setupUi(self)
         self.scan_type = scan_type
         self.xar = xr.DataArray()
         self.data = None
-        self.cut = xr.DataArray()
         self.imagetool = None
         self.canvas = None
-        self.k_cut = None
+        self.k_data = None
         self.k = False
         self.which_cut = 1
         self.dims = []
@@ -38,32 +38,29 @@ class FMImageWidget(QFrame, FMImageWidget_Ui):
         self.x_label = "$k_(x)$ ($\AA^(-1)$)"
         self.y_label = "Binding Energy"
         self.title = "Fermi Map Cut"
-        self.lines = {}
         self.work_function = 4.2
         self.inner_potential = 14
         self.photon_energy = 150
-        self.initialize_vals()
         self.initialize_canvases()
+        self.initialize_vals()
         self.connect_signals()
 
     def initialize_canvases(self):
         x = np.linspace(-1, 1, 51)
         y = np.linspace(-1, 1, 51)
-        z = np.linspace(-1, 1, 51)
-        xyz = np.meshgrid(x, y, z, indexing='ij')
-        d = np.sin(np.pi * np.exp(-1 * (xyz[0] ** 2 + xyz[1] ** 2 + xyz[2] ** 2))) * np.cos(np.pi / 2 * xyz[1])
-        self.xar = xr.DataArray(d, coords={"slit": x, 'perp': y, "energy": z}, dims=["slit", "perp", "energy"])
-        self.data = RegularDataArray(d, delta=[x[1] - x[0], y[1] - y[0], z[1] - z[0]], coord_min=[x[0], y[0], z[0]])
-        self.cut = self.xar.sel({"perp": 0}, method='nearest')
-        self.imagetool = PlotWidget(self.data, layout=1)
+        xy = np.meshgrid(x, y, indexing='ij')
+        z = np.sin(np.pi * np.exp(-1 * (xy[0] ** 2 + xy[1] ** 2))) * np.cos(np.pi / 2 * xy[1])
+        self.xar = xr.DataArray(z, coords={"slit": x, "energy": y}, dims=["slit", "energy"])
+        self.data = RegularDataArray(z, delta=[x[1] - x[0], y[1] - y[0]], coord_min=[x[0], y[0]])
+        self.imagetool = PlotWidget(self.data, layout=0)
         self.canvas = PlotCanvas()
-        self.canvas.plot(self.cut.transpose())
+        self.canvas.plot(self.xar)
         self.layout.addWidget(self.imagetool)
         self.layout.addWidget(self.canvas)
 
     def initialize_vals(self):
-        self.context.fm_xar_data = self.xar
-        self.context.fm_reg_data = self.data
+        self.context.ss_xar_data = self.xar
+        self.context.ss_reg_data = self.data
 
     def connect_signals(self):
         self.signals.updateData.connect(self.change_data)
@@ -76,16 +73,18 @@ class FMImageWidget(QFrame, FMImageWidget_Ui):
         self.signals.hvChanged.connect(self.update_hv)
         self.signals.axesChanged.connect(self.change_axes)
         self.signals.updateXYTLabel.connect(self.update_xyt)
-        self.signals.updateLines.connect(self.change_lines)
 
     def update_xyt(self, xyt, scan_type):
         if scan_type == self.scan_type:
-            self.clear_canvases()
+            self.clearLayout(self.layout)
+            self.canvas = PlotCanvas()
+            self.imagetool = PlotWidget(self.data, layout=0)
             self.x_label = xyt[0]
             self.y_label = xyt[1]
             self.title = xyt[2]
             self.canvas.set_xyt(self.x_label, self.y_label, self.title)
-            self.add_canvases()
+            self.layout.addWidget(self.imagetool)
+            self.layout.addWidget(self.canvas)
 
     def change_axes(self, a, scan_type):
         if scan_type == self.scan_type:
@@ -98,17 +97,6 @@ class FMImageWidget(QFrame, FMImageWidget_Ui):
             self.canvas.set_ylim(self.y_min, self.y_max)
             self.add_canvases()
 
-    def change_lines(self, lines, scan_type):
-        if scan_type == self.scan_type:
-            self.lines = lines
-            self.handle_plotting()
-
-    def change_data(self, st):
-        if st == "fermi_map":
-            self.xar = self.context.master_dict['data'][st]
-            self.data = RegularDataArray(self.xar)
-            self.handle_plotting()
-
     def update_axslit(self, axs):
         """function for shifting across slit"""
         pass
@@ -120,7 +108,7 @@ class FMImageWidget(QFrame, FMImageWidget_Ui):
     def update_azimuth(self, az):
         """function for shifting in azimuth"""
         pass
-    
+
     def update_wf(self, wf, scan_type):
         if scan_type == self.scan_type:
             self.work_function = wf
@@ -136,7 +124,7 @@ class FMImageWidget(QFrame, FMImageWidget_Ui):
         self.k = self.context.master_dict['real_space'][self.scan_type]
         if self.k:
             spectra_ek = self.convert_to_ke()
-            self.k_cut = spectra_ek.arpes.spectra_k_irreg(phi0=0)
+            self.k_data = spectra_ek.arpes.spectra_k_irreg(phi0=0)
             self.clear_canvases()
             self.add_canvases()
         else:
@@ -145,18 +133,27 @@ class FMImageWidget(QFrame, FMImageWidget_Ui):
             pass
 
     def ranges(self):
-        if self.which_cut == 1:
-            x_min = self.xar.slit.values[0]
-            x_max = self.xar.slit.values[-1]
-            y_min = self.xar.energy.values[0]
-            y_max = self.xar.energy.values[-1]
-            self.context.update_all_axes(self.scan_type, [["x_min", x_min],
-                                                       ["x_max", x_max],
-                                                       ["y_min", y_min],
-                                                       ["y_max", y_max]])
+        x_min = self.xar.slit.values[0]
+        x_max = self.xar.slit.values[-1]
+        y_min = self.xar.energy.values[0]
+        y_max = self.xar.energy.values[-1]
+        self.context.update_all_axes(self.scan_type, [["x_min", x_min],
+                                                      ["x_max", x_max],
+                                                      ["y_min", y_min],
+                                                      ["y_max", y_max]])
 
-    def handle_plotting(self):
-        self.cut = self.xar.sel({"perp": 0}, method='nearest')
+    def change_data(self, st):
+        if st == "single":
+            self.xar = self.context.master_dict['data']['single']
+            self.data = RegularDataArray(self.xar)
+            self.handle_plotting()
+
+    def handle_plotting(self, xar):
+        self.cut = self.xar.sel({"slit": 0}, method='nearest')
+        self.ranges()
+        self.refresh_plots()
+
+    def handle_plotting(self, xar):
         self.ranges()
         self.refresh_plots()
 
@@ -173,31 +170,21 @@ class FMImageWidget(QFrame, FMImageWidget_Ui):
     def clear_canvases(self):
         self.clearLayout(self.layout)
         self.canvas = PlotCanvas()
-        self.imagetool = PlotWidget(self.data, layout=1)
+        self.imagetool = PlotWidget(self.data, layout=0)
         if self.k:
-            self.canvas.plot(self.k_cut.transpose())
+            self.canvas.plot(self.k_data.transpose())
         else:
-            self.canvas.plot(self.cut.transpose())
-        for key in range(len(self.lines)):
-            if self.lines[key]["vertical"]:
-                pos = self.lines[key]["position"]
-                color = self.lines[key]["color"]
-                #style = self.lines[key]["position"]
-                self.canvas.add_vline(pos, color)
-            elif not self.lines[key]["vertical"]:
-                pos = self.lines[key]["position"]
-                color = self.lines[key]["color"]
-                #style = self.lines[key]["position"]
-                self.canvas.add_hline(pos, color)
+            self.canvas.plot(self.xar.transpose())
 
     def add_canvases(self):
         self.layout.addWidget(self.imagetool)
         self.layout.addWidget(self.canvas)
 
     def convert_to_ke(self):
-        binding_energies = self.cut.energy
+        c = self.xar.copy()
+        binding_energies = self.xar.energy
         kinetic_energies = binding_energies + (self.photon_energy - self.work_function)
-        v = self.cut.assign_coords({'energy': kinetic_energies})
+        v = c.assign_coords({'energy': kinetic_energies})
         ef = self.photon_energy - self.work_function
         v.arpes.ef = ef
         return v
