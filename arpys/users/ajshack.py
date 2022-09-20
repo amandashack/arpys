@@ -490,7 +490,7 @@ def convert_partial_3d_normal_emission(scans, inner_potential=14, wf=4.2, num_x=
                                 'energy': binding_energy})
 
 
-def generate_fit(edc, window_min, window_max, fp):
+def generate_fit(fp):
     """
     Generate the fit for one EDC given a specified window
     :param edc:
@@ -517,13 +517,7 @@ def generate_fit(edc, window_min, window_max, fp):
     params_['constant_c'].set(value=float(fp[6][0]), max=float(fp[6][1]))
 
     full_model = linear_back * fermi_func + constant
-    window = edc.sel({'energy': slice(window_min, window_max)})
-    energies = window.energy.values
-    # dos = window.values
-    init = full_model.eval(params_, x=energies)
-    out_ = full_model.fit(init, params_, x=energies)
-    params_ = out_.params
-    return full_model, out_, params_
+    return full_model, params_
 
 
 def ef_guess_for_edc(scan, dim_key, e0, e1, offset=0, ndown=2, scan_info=["hv_scan", 14]):

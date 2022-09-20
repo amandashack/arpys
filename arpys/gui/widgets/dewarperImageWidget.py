@@ -21,8 +21,8 @@ class DewarperImageWidget(QFrame):
                              'fermi_amplitude', 'linear_slope', 'linear_intercept',
                              'constant_c']
         self.default_params = [[13.6, None, None], [True, 0.03, 0.001],
-                          [0.1, 0.15, True], [1, False, None], [-0.1, 50, False],
-                          [1, True, None], [0.002, 100, None]]
+                               [-0.1, 0.15, True], [1, False, None], [0, 50, False],
+                               [1, True, None], [0.002, .1, None]]
         x = np.linspace(-1, 1, 51)
         y = np.linspace(-1, 1, 51)
         z = np.linspace(-1, 1, 51)
@@ -136,18 +136,34 @@ class DewarperImageWidget(QFrame):
         self.canvas_edc.plot(self.edc)
         if self.edc_fit_params:
             if self.y_edc in self.edc_fit_params:
-                self.canvas_edc.axes.plot(self.edc_fit_params[self.y_edc][3],
+                ef_value = self.edc_fit_params[self.y_edc][2]['fermi_center'].value
+                ef_error = self.edc_fit_params[self.y_edc][2]['fermi_center'].stderr
+                self.canvas_edc.axes.plot(self.edc[self.dim2].values,
                                           self.edc_fit_params[self.y_edc][1].best_fit)
+                sel_val = min(self.edc[self.dim2].values, key=lambda f: abs(f - ef_value))
+                self.canvas_edc.axes.plot(ef_value, self.edc.sel({self.dim2: sel_val}), 'o', color='black')
         self.layout_edc.addWidget(self.canvas_edc)
 
     def fit_edc(self):
-        edc_sum_1 = self.cut.sel({self.dim2: slice(self.x_left[0], self.x_right[0])}).sum(self.dim0)
+        """"
+        # this is for generating fit parameters that can be used to fit the
+        # whole spectra. If this is just for a single cut then need something else
+
+        edc_sum_1 = self.cut.sel({self.dim2: slice(self.x_left[0], self.x_right[0]),
+                                  self.dim0: slice(-13, 15)}).sum(self.dim0)
         edc_sum = edc_sum_1.values / (len(edc_sum_1.values))
         edc = xr.DataArray(edc_sum, coords={self.dim2: edc_sum_1[self.dim2].values}, dims=[self.dim2])
-        model, out, params = generate_fit(edc, self.x_left[0], self.x_right[0],
-                                          self.params[self.cut_val][self.y_edc])
+        model, params = generate_fit(self.params[self.cut_val][self.y_edc])
         dos = edc.values
         ene = edc['energy'].values
+
+        out = model.fit(dos, params, x=ene)
+        self.edc_fit_params[self.y_edc] = [model, out, params, ene, edc]
+        self.handle_plotting_edc()
+        """
+        model, params = generate_fit(self.params[self.cut_val][self.y_edc])
+        dos = self.edc.values
+        ene = self.edc['energy'].values
 
         out = model.fit(dos, params, x=ene)
         self.edc_fit_params[self.y_edc] = [model, out, params, ene]
