@@ -98,51 +98,47 @@ class DewarperImageWidget(QFrame):
         self.y_edc = self.coord0[0]
         self.x_left = [self.coord2[0], 0]
         self.x_right = [self.coord2[-1], -1]
+        self.update_cut()
+        self.params = {i: {j: self.default_params for j in self.coord0} for i in self.coord1}
+
+    def update_cut(self):
         self.cut = self.xar.sel({self.dim1: self.cut_val}, method='nearest')
         self.edc = self.cut.sel({self.dim0: self.y_edc}, method='nearest')
-        self.params = {i: {j: self.default_params for j in self.coord0} for i in self.coord1}
 
     def update_params(self, p):
         self.params[self.cut_val][self.y_edc] = p
 
     def handle_plotting(self):
-        self.clearLayout(self.layout_cut)
-        self.clearLayout(self.layout_edc)
-        self.refresh_plots()
+        self.handle_plotting_cut()
+        self.handle_plotting_edc()
 
-    def refresh_plots(self):
-        self.canvas_cut = PlotCanvas()
-        self.canvas_edc = PlotCanvas()
+    def handle_plotting_cut(self):
+        self.canvas_cut.axes.cla()
         self.canvas_cut.plot(self.cut)
-        self.canvas_edc.plot(self.edc)
-        self.view = QGraphicsView()
-        self.scene = QGraphicsScene()
-        self.line_item_hor = HLineItem(self.signals)
-        self.line_item_vert_left = VLineItem(self.signals, 0)
-        self.line_item_vert_right = VLineItem(self.signals, 1)
-        # move the lines to the correct positions
-        self.connect_scene()
-        self.layout_cut.addWidget(self.view)
-        self.layout_edc.addWidget(self.canvas_edc)
+        if self.edc_fit_params:
+            if self.cut_val in self.edc_fit_params.keys():
+                for y_edc in self.edc_fit_params[self.cut_val].keys():
+                    ef_value = self.edc_fit_params[self.cut_val][y_edc][2]['fermi_center'].value
+                    ef_error = self.edc_fit_params[self.cut_val][y_edc][2]['fermi_center'].stderr
+                    self.canvas_cut.axes.plot(ef_value, y_edc, 'o', color='black')
+        self.canvas_cut.draw()
 
     def handle_plotting_edc(self):
-        self.edc = self.cut.sel({self.dim0: self.y_edc})#.sel({self.dim2: slice(self.x_left, self.x_right)})
-        self.edc = self.edc[self.x_left[1]: self.x_right[1]]
-        self.clearLayout(self.layout_edc)
-        self.refresh_edc()
-
-    def refresh_edc(self):
-        self.canvas_edc = PlotCanvas()
+        self.canvas_edc.axes.cla()
         self.canvas_edc.plot(self.edc)
+        self.canvas_cut.plot(self.cut)
         if self.edc_fit_params:
-            if self.y_edc in self.edc_fit_params:
-                ef_value = self.edc_fit_params[self.y_edc][2]['fermi_center'].value
-                ef_error = self.edc_fit_params[self.y_edc][2]['fermi_center'].stderr
-                self.canvas_edc.axes.plot(self.edc[self.dim2].values,
-                                          self.edc_fit_params[self.y_edc][1].best_fit)
-                sel_val = min(self.edc[self.dim2].values, key=lambda f: abs(f - ef_value))
-                self.canvas_edc.axes.plot(ef_value, self.edc.sel({self.dim2: sel_val}), 'o', color='black')
-        self.layout_edc.addWidget(self.canvas_edc)
+            if self.cut_val in self.edc_fit_params.keys():
+                if self.y_edc in self.edc_fit_params[self.cut_val]:
+                    ef_value = self.edc_fit_params[self.cut_val][self.y_edc][2]['fermi_center'].value
+                    ef_error = self.edc_fit_params[self.cut_val][self.y_edc][2]['fermi_center'].stderr
+                    self.canvas_edc.axes.plot(self.edc_fit_params[self.cut_val][self.y_edc][3],
+                                              self.edc_fit_params[self.cut_val][self.y_edc][1].best_fit)
+                    sel_val = min(self.edc[self.dim2].values, key=lambda f: abs(f - ef_value))
+                    self.canvas_edc.axes.plot(ef_value, self.edc.sel({self.dim2: sel_val}), 'o', color='black')
+
+        self.canvas_edc.draw()
+        #self.layout_edc.addWidget(self.canvas_edc)
 
     def fit_edc(self):
         """"
@@ -161,13 +157,16 @@ class DewarperImageWidget(QFrame):
         self.edc_fit_params[self.y_edc] = [model, out, params, ene, edc]
         self.handle_plotting_edc()
         """
-        model, params = generate_fit(self.params[self.cut_val][self.y_edc])
+        model, init_params = generate_fit(self.params[self.cut_val][self.y_edc])
         dos = self.edc.values
         ene = self.edc['energy'].values
 
-        out = model.fit(dos, params, x=ene)
-        self.edc_fit_params[self.y_edc] = [model, out, params, ene]
-        self.handle_plotting_edc()
+        result = model.fit(dos, init_params, x=ene)
+        params = result.params
+        if self.cut_val not in self.edc_fit_params.keys():
+            self.edc_fit_params[self.cut_val] = {}
+        self.edc_fit_params[self.cut_val][self.y_edc] = [model, result, params, ene]
+        self.handle_plotting()
 
     def adjust_range(self, x, id):
         bbox = self.canvas_cut.axes.spines['top'].get_window_extent()
@@ -186,7 +185,9 @@ class DewarperImageWidget(QFrame):
             self.x_left = [self.coord2[what_index], what_index]
         elif id == 1:
             self.x_right = [self.coord2[what_index], what_index]
-        self.handle_plotting_edc()
+        self.edc = self.cut.sel({self.dim0: self.y_edc})
+        self.edc = self.edc[self.x_left[1]: self.x_right[1]]
+        self.handle_plotting()
 
     def plot_position(self, y):
         rel_pos = lambda x: abs(self.scene.sceneRect().height() - x)
@@ -203,7 +204,9 @@ class DewarperImageWidget(QFrame):
         sel_val = min(r, key=lambda f: abs(f - rel_pos(self.line_pos)))
         what_index = r.index(sel_val)
         self.y_edc = corr[what_index][1]
-        self.handle_plotting_edc()
+        self.edc = self.cut.sel({self.dim0: self.y_edc})
+        self.edc = self.edc[self.x_left[1]: self.x_right[1]]
+        self.handle_plotting()
 
     def clear_canvases(self):
         self.clearLayout(self.layout)

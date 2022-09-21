@@ -42,7 +42,6 @@ class PlotCanvas(FigureCanvas):
                                    QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
         self.axes = self.fig.add_subplot(111)
-        self.data = xr.DataArray()
         self.axes.yaxis.set_ticks_position('both')
         self.axes.xaxis.set_ticks_position('both')
 
@@ -65,7 +64,10 @@ class PlotCanvas(FigureCanvas):
 
     def plot(self, data):
         self.data = data
-        self.data.plot(ax=self.axes)
+        try:
+            self.data.plot(ax=self.axes, add_colorbar=False)
+        except AttributeError:
+            self.data.plot(ax=self.axes)
         self.fig.subplots_adjust(left=0.2)
         self.fig.subplots_adjust(bottom=0.2)
         self.draw()

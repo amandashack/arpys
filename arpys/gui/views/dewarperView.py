@@ -92,7 +92,9 @@ class DewarperView(QWidget):
         self.imageWidget.handle_plotting()
 
     def capture_change_posz(self, v):
-        self.imageWidget.cut_val = float(v)
+        # TODO: IndexError: index 12 is out of bounds for axis 0 with size 10
+        self.imageWidget.cut_val = self.imageWidget.coord1[int(v)]
+        self.imageWidget.update_cut()
         self.imageWidget.handle_plotting()
 
     def capture_change_posy(self, v):
@@ -108,7 +110,7 @@ class DewarperView(QWidget):
         y = rel_pos(y)
         self.imageWidget.y_edc = v
         self.imageWidget.line_item_hor.setPos(0, y)
-        self.imageWidget.handle_plotting_edc()
+        self.imageWidget.handle_plotting()
 
     def create_image_widget(self):
         self.imageWidget = DewarperImageWidget(self.context, self.signals)
