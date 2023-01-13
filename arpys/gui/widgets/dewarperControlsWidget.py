@@ -32,14 +32,13 @@ class DewarperControlsWidget(QFrame, DewarperControlsWidget_Ui):
         self.update_allowed_positions()
 
     def make_connections(self):
-        self.lw_z_bin.valueChanged.connect(self.capture_change_z)
-        self.lw_y_bin.valueChanged.connect(self.capture_change_y)
+        # TODO: make step size selector and connect to these instead
+        pass
+        #self.lw_z_bin.valueChanged.connect(self.capture_change_z)
+        #self.lw_y_bin.valueChanged.connect(self.capture_change_y)
 
     def update_data(self, st):
         self.data = self.context.master_dict['data'][st]
-        self.coord1 = self.data.coords[self.data.dims[0]].values
-        self.coord2 = self.data.coords[self.data.dims[1]].values
-        self.coord3 = self.data.coords[self.data.dims[2]].values
         self.update_allowed_positions()
 
     def capture_change_z(self, v):
@@ -49,6 +48,9 @@ class DewarperControlsWidget(QFrame, DewarperControlsWidget_Ui):
         self.lw_y_position.setSingleStep(v)
 
     def update_allowed_positions(self):
+        self.coord1 = self.data.coords[self.data.dims[0]].values
+        self.coord2 = self.data.coords[self.data.dims[1]].values
+        self.coord3 = self.data.coords[self.data.dims[2]].values
         self.lw_z_position.set_values(self.coord2)
         self.lw_z_position.setMinimum(self.lw_z_position.valueFromText(min(self.coord2)))
         self.lw_z_position.setMaximum(self.lw_z_position.valueFromText(max(self.coord2)))

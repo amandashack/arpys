@@ -13,8 +13,8 @@ log = logging.getLogger(__name__)
 BASEDIR = Path(__file__).resolve().parents[2].joinpath('loaders')
 DATADIR = Path(__file__).resolve().parents[4].joinpath('data/ssrl_071522')
 
-# TODO: if the graph loads, close the window, if not give another popup
-#  that says the issue and let them try again
+# TODO: allow the option to use a loader from a different file
+#  this is a work around for when the loader is not working
 
 
 class FileLoaderWidget(QFrame, FileLoaderWidget_Ui):
