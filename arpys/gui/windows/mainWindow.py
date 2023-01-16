@@ -6,7 +6,8 @@ from gui.views.hvScanView import HVScanView
 from gui.views.singleScanView import SingleScanView
 from gui.windows.mainWindowUi import Ui_MainWindow
 from gui.windows.fileLoaderWindow import FileLoaderWindow
-from gui.windows.dewarpToolWindow import DewarperWindow
+from gui.windows.edcToolWindow import EDCWindow
+from gui.windows.dewarperWindow import DewarperWindow
 from PyQt5.Qt import Qt
 from PyQt5.QtCore import QCoreApplication
 from PyQt5.QtWidgets import (QAction, QLabel, QMainWindow, QSizePolicy,
@@ -29,6 +30,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.fermi_map_view = None
         self.hv_scan_view = None
         self.single_scan_view = None
+        self.EDC = None
         self.dewarper = None
         self.tab_widget = None
         self.create_views_and_dialogs()
@@ -39,6 +41,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.connect_signals()
 
     def make_connections(self):
+        self.signals.startEDC.connect(self.open_EDC)
         self.signals.startDewarper.connect(self.open_dewarper)
 
     def create_views_and_dialogs(self):
@@ -46,6 +49,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.fermi_map_view = FermiMapView(self.context, self.signals)
         self.hv_scan_view = HVScanView(self.context, self.signals)
         self.single_scan_view = SingleScanView(self.context, self.signals)
+        self.EDC = EDCWindow(self.context, self.signals, None)
         self.dewarper = DewarperWindow(self.context, self.signals, None)
         # self.helpDialog = HelpDialog()
 
@@ -190,6 +194,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # the one you opened before with the new one you have
         # selected.
         self.file_loader.show()
+
+    def open_EDC(self, scan_type):
+        self.EDC.set_scan_type(scan_type)
+        self.EDC.show()
 
     def open_dewarper(self, scan_type):
         self.dewarper.set_scan_type(scan_type)

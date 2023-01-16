@@ -86,6 +86,12 @@ class VLineItem(QGraphicsLineItem):
 
 
 class SpinBox(QSpinBox):
+    """
+    This class allows for setting a list of values as the selectable values
+    and then uses the index of the spinbox to related to where you are in the list.
+    It can also be stepped by different values in case you have a large list and would
+    like to make larger steps. It does not wrap at the beginning and end.
+    """
     def __init__(self, parent=None):
         super(SpinBox, self).__init__(parent)
         self.indicies = {}
@@ -116,6 +122,11 @@ class SpinBox(QSpinBox):
 
 
 class LineEdit(QLineEdit):
+    """
+    Used to make QLineEdit only able to be used for numbers. It does not
+    allow for text input. It also does not allow going outside of the max/min
+    values.
+    """
     checkVal = pyqtSignal(float)
 
     def __init__(self, *args, **kwargs):
@@ -148,7 +159,7 @@ class LineEdit(QLineEdit):
 
     def valRange(self, x1, x2):
         self.validator.setRange(x1, x2)
-        self.validator.setDecimals(6)
+        self.validator.setDecimals(3)
         self.validator.setNotation(QDoubleValidator.StandardNotation)
 
 

@@ -24,7 +24,7 @@ class Signals(QtCore.QObject):
     closeLoader = QtCore.pyqtSignal()
     # emit in context
     # connect in mainWindow
-    startDewarper = QtCore.pyqtSignal(str)
+    startEDC = QtCore.pyqtSignal(str)
     # emit in context
     # connect in all image widgets
     axesChanged = QtCore.pyqtSignal(list, str)
@@ -32,11 +32,17 @@ class Signals(QtCore.QObject):
     # connect in image widgets
     updateLines = QtCore.pyqtSignal(dict, str)
     # emit in basicWidgets
-    # connect in dewarper widget
+    # connect in EDC widget
     hbttnReleased = QtCore.pyqtSignal(float)
     # emit in basicWidgets
-    # connect in dewarper widget
+    # connect in EDC widget
     vbttnReleased = QtCore.pyqtSignal(float, int)
     # emit in paramsTableWindow
-    # connect in dewarperImageWidget
+    # connect in EDCImageWidget
     tableData = QtCore.pyqtSignal(list)
+    # ------------------------------------------------------
+    # signals for dewarper
+    # ------------------------------------------------------
+    # emit in context
+    # connect in mainWindow
+    startDewarper = QtCore.pyqtSignal(str)

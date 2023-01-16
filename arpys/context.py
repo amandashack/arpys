@@ -152,5 +152,8 @@ class Context(object):
         self.master_dict['data'][scan_type] = xar
         self.signals.updateData.emit(scan_type)
 
+    def start_EDC(self, scan_type):
+        self.signals.startEDC.emit(scan_type)
+
     def start_dewarper(self, scan_type):
         self.signals.startDewarper.emit(scan_type)

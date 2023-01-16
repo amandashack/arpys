@@ -1,6 +1,6 @@
 import logging
 
-from gui.widgets.dewarperControlsWidgetUi import DewarperControlsWidget_Ui
+from gui.widgets.edcControlsWidgetUi import EDCControlsWidget_Ui
 # from users.ajshack.hv_scan_dev_ssrl import fix_array
 from PyQt5.QtWidgets import QFrame, QMessageBox, QFileDialog
 import sys, types, importlib.util
@@ -17,9 +17,9 @@ DATADIR = Path(__file__).resolve().parents[4].joinpath('data/ssrl_071522')
 #  that says the issue and let them try again
 
 
-class DewarperControlsWidget(QFrame, DewarperControlsWidget_Ui):
+class EDCControlsWidget(QFrame, EDCControlsWidget_Ui):
     def __init__(self, context, signals):
-        super(DewarperControlsWidget, self).__init__()
+        super(EDCControlsWidget, self).__init__()
         self.signals = signals
         self.context = context
         self.scan_type = "fermi_map"
@@ -37,7 +37,7 @@ class DewarperControlsWidget(QFrame, DewarperControlsWidget_Ui):
         #self.lw_z_bin.valueChanged.connect(self.capture_change_z)
         #self.lw_y_bin.valueChanged.connect(self.capture_change_y)
 
-    def update_data(self, st):
+    def initialize_data(self, st):
         self.data = self.context.master_dict['data'][st]
         self.update_allowed_positions()
 

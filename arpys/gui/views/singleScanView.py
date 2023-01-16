@@ -1,6 +1,6 @@
 import logging
 
-from gui.widgets.ssControlsWidget import SingleScanControlsWidget
+from gui.widgets.baseControlsWidget import BaseControlsWidget
 from gui.widgets.ssImageWidget import SSImageWidget
 from PyQt5.QtWidgets import QHBoxLayout, QWidget
 
@@ -31,4 +31,4 @@ class SingleScanView(QWidget):
         self.imageWidget = SSImageWidget(self.context, self.signals, "single")
 
     def create_editor_widget(self):
-        self.editorWidget = SingleScanControlsWidget(self.context, self.signals)
+        self.editorWidget = BaseControlsWidget(self.context, self.signals, "single")

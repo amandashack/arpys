@@ -1,6 +1,6 @@
 import logging
 
-from gui.widgets.hvControlsWidget import HVScanControlsWidget
+from gui.widgets.baseControlsWidget import BaseControlsWidget
 from gui.widgets.hvImageWidget import HVImageWidget
 from PyQt5.QtWidgets import QHBoxLayout, QWidget
 
@@ -31,4 +31,4 @@ class HVScanView(QWidget):
         self.imageWidget = HVImageWidget(self.context, self.signals, "hv_scan")
 
     def create_editor_widget(self):
-        self.editorWidget = HVScanControlsWidget(self.context, self.signals)
+        self.editorWidget = BaseControlsWidget(self.context, self.signals, "hv_scan")

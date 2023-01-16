@@ -1,17 +1,18 @@
 import logging
 
-from gui.widgets.fmControlsWidgetUi import FermiMapControls_Ui
+from gui.widgets.baseControlsWidgetUi import BaseControls_Ui
 from PyQt5.QtWidgets import QFrame, QFontDialog, QColorDialog
 from PyQt5.QtGui import QFont
 
 log = logging.getLogger(__name__)
 
 
-class FermiMapControlsWidget(QFrame, FermiMapControls_Ui):
-    def __init__(self, context, signals):
-        super(FermiMapControlsWidget, self).__init__()
+class BaseControlsWidget(QFrame, BaseControls_Ui):
+    def __init__(self, context, signals, context_type):
+        super(BaseControlsWidget, self).__init__()
         self.signals = signals
         self.context = context
+        self.context_type = context_type
         self.setupUi(self)
         self.lines = {}
         self.set_k_space_options()
@@ -29,19 +30,19 @@ class FermiMapControlsWidget(QFrame, FermiMapControls_Ui):
         self.rdbttn_custom_stylesheet.setChecked(self.context.custom_stylesheet)
         self.le_workfunction.setText(str(self.context.work_function))
         self.le_inner_potential.setText(str(self.context.inner_potential))
-        self.le_photon_energy.setText(str(self.context.master_dict["hv"]["fermi_map"]))
-        self.le_xmin.setText(str(self.context.master_dict["x_min"]["fermi_map"]))
-        self.le_xmax.setText(str(self.context.master_dict['x_max']["fermi_map"]))
-        self.le_ymin.setText(str(self.context.master_dict['y_min']['fermi_map']))
-        self.le_ymax.setText(str(self.context.master_dict['y_max']['fermi_map']))
+        self.le_photon_energy.setText(str(self.context.master_dict["hv"][self.context_type]))
+        self.le_xmin.setText(str(self.context.master_dict["x_min"][self.context_type]))
+        self.le_xmax.setText(str(self.context.master_dict['x_max'][self.context_type]))
+        self.le_ymin.setText(str(self.context.master_dict['y_min'][self.context_type]))
+        self.le_ymax.setText(str(self.context.master_dict['y_max'][self.context_type]))
         self.le_aspect_ratio.setText(str(self.context.aspect_ratio))
-        self.le_title.setText(str(self.context.master_dict['title']['fermi_map']))
-        self.le_x_label.setText(str(self.context.master_dict['x_label']['fermi_map']))
-        self.le_y_label.setText(str(self.context.master_dict['y_label']['fermi_map']))
-        self.cbox_color_map.setCurrentText(self.context.master_dict['color_map']['fermi_map'])
+        self.le_title.setText(str(self.context.master_dict['title'][self.context_type]))
+        self.le_x_label.setText(str(self.context.master_dict['x_label'][self.context_type]))
+        self.le_y_label.setText(str(self.context.master_dict['y_label'][self.context_type]))
+        self.cbox_color_map.setCurrentText(self.context.master_dict['color_map'][self.context_type])
         self.rdbttn_auto_normalization.setChecked(self.context.auto_normalize)
         self.cbox_normalization.setCurrentText(self.context.normalization_type)
-        self.bttn_open_dewarping_tool.pressed.connect(self.start_dewarping)
+        self.bttn_open_edc_tool.pressed.connect(self.start_edc)
 
     def make_connections(self):
         # QUESTION: does checkVal only emit when enter is pressed? need to
@@ -49,17 +50,17 @@ class FermiMapControlsWidget(QFrame, FermiMapControls_Ui):
         self.le_across_slit_offset.checkVal.connect(self.context.update_axslit_offset)
         self.le_along_slit_offset.checkVal.connect(self.context.update_alslit_offset)
         self.le_azimuth_offset.checkVal.connect(self.context.update_azimuth_offset)
-        self.le_workfunction.checkVal.connect(lambda x: self.context.update_work_function(x, "fermi_map"))
-        self.le_inner_potential.checkVal.connect(lambda x: self.context.update_inner_potential(x, "fermi_map"))
-        self.le_photon_energy.checkVal.connect(lambda x: self.context.update_photon_energy(x, "fermi_map"))
-        self.le_xmin.checkVal.connect(lambda x: self.context.update_xmin(x, "fermi_map"))
-        self.le_xmax.checkVal.connect(lambda x: self.context.update_xmax(x, "fermi_map"))
-        self.le_ymin.checkVal.connect(lambda x: self.context.update_ymin(x, "fermi_map"))
-        self.le_ymax.checkVal.connect(lambda x: self.context.update_ymax(x, "fermi_map"))
+        self.le_workfunction.checkVal.connect(lambda x: self.context.update_work_function(x, self.context_type))
+        self.le_inner_potential.checkVal.connect(lambda x: self.context.update_inner_potential(x, self.context_type))
+        self.le_photon_energy.checkVal.connect(lambda x: self.context.update_photon_energy(x, self.context_type))
+        self.le_xmin.checkVal.connect(lambda x: self.context.update_xmin(x, self.context_type))
+        self.le_xmax.checkVal.connect(lambda x: self.context.update_xmax(x, self.context_type))
+        self.le_ymin.checkVal.connect(lambda x: self.context.update_ymin(x, self.context_type))
+        self.le_ymax.checkVal.connect(lambda x: self.context.update_ymax(x, self.context_type))
         #self.le_aspect_ratio.checkVal.connect(self.context.update_aspect_ratio)
-        self.le_x_label.textChanged.connect(lambda x: self.context.update_x_label(x, "fermi_map"))
-        self.le_y_label.textChanged.connect(lambda x: self.context.update_y_label(x, "fermi_map"))
-        self.le_title.textChanged.connect(lambda x: self.context.update_title(x, "fermi_map"))
+        self.le_x_label.textChanged.connect(lambda x: self.context.update_x_label(x, self.context_type))
+        self.le_y_label.textChanged.connect(lambda x: self.context.update_y_label(x, self.context_type))
+        self.le_title.textChanged.connect(lambda x: self.context.update_title(x, self.context_type))
         self.le_x_label.returnPressed.connect(self.update_xyt)
         self.le_y_label.returnPressed.connect(self.update_xyt)
         self.le_title.returnPressed.connect(self.update_xyt)
@@ -72,16 +73,20 @@ class FermiMapControlsWidget(QFrame, FermiMapControls_Ui):
         self.le_line_pos.checkVal.connect(self.choose_line_pos)
         self.bttn_add_line.pressed.connect(self.add_line)
         self.cbox_lines.currentIndexChanged.connect(self.set_line_options)
-        self.bttn_open_dewarping_tool.pressed.connect(self.start_dewarping)
+        self.bttn_open_edc_tool.pressed.connect(self.start_edc)
+        self.bttn_open_dewarper_tool.pressed.connect(self.start_dewarper)
 
-    def start_dewarping(self):
-        self.context.start_dewarper("fermi_map")
+    def start_edc(self):
+        self.context.start_EDC(self.context_type)
+
+    def start_dewarper(self):
+        self.context.start_dewarper(self.context_type)
 
     def update_xyt(self):
-        self.context.update_xyt("fermi_map")
+        self.context.update_xyt(self.context_type)
 
     def update_line(self):
-        self.context.update_lines(self.lines, "fermi_map")
+        self.context.update_lines(self.lines, self.context_type)
 
     def choose_font(self):
         font, valid = QFontDialog.getFont()
@@ -132,24 +137,24 @@ class FermiMapControlsWidget(QFrame, FermiMapControls_Ui):
     def checkBttn(self, button):
         bttn = button.text()
         if bttn == "real space":
-            self.context.update_real_space(True, "fermi_map")
+            self.context.update_real_space(True, self.context_type)
         elif bttn == "k space":
-            self.context.update_real_space(False, "fermi_map")
+            self.context.update_real_space(False, self.context_type)
         elif bttn == "across slit normal":
-            self.context.update_normal_across_slit(True, "fermi_map")
+            self.context.update_normal_across_slit(True, self.context_type)
         elif bttn == "across slit off normal":
-            self.context.update_normal_across_slit(False, "fermi_map")
+            self.context.update_normal_across_slit(False, self.context_type)
         elif bttn == "Personal\nStylesheet":
-            self.context.update_custom_stylesheet(False, "Fermi_map")
+            self.context.update_custom_stylesheet(False, self.context_type)
             self.cbox_stylesheet.setEnabled(True)
         elif bttn == "Custom\nStylesheet":
-            self.context.update_custom_stylesheet(True, "fermi_map")
+            self.context.update_custom_stylesheet(True, self.context_type)
             self.cbox_stylesheet.setEnabled(True)
             # TODO: connect pop up toolbar for stylesheet editing here
         elif bttn == "auto":
-            self.context.update_auto_normalize(True, "fermi_map")
+            self.context.update_auto_normalize(True, self.context_type)
         elif bttn == "custom":
-            self.context.update_auto_normalize(False, "fermi_map")
+            self.context.update_auto_normalize(False, self.context_type)
             # TODO: connect pop up toolbar for normalization editing here
 
     def setDefaultStyleSheet(self):

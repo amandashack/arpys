@@ -1,5 +1,5 @@
 from gui.views.dewarperView import DewarperView
-from gui.windows.dewarpToolWindowUi import DewarperWindow_Ui
+from gui.windows.dewarperWindowUi import DewarperWindow_Ui
 from PyQt5.QtWidgets import QMainWindow
 
 

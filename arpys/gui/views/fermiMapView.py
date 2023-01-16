@@ -1,6 +1,6 @@
 import logging
 
-from gui.widgets.fmControlsWidget import FermiMapControlsWidget
+from gui.widgets.baseControlsWidget import BaseControlsWidget
 from gui.widgets.fmImageWidget import FMImageWidget
 from PyQt5.QtWidgets import QHBoxLayout, QWidget, QFileDialog
 
@@ -31,7 +31,7 @@ class FermiMapView(QWidget):
         self.imageWidget = FMImageWidget(self.context, self.signals, "fermi_map")
 
     def create_editor_widget(self):
-        self.editorWidget = FermiMapControlsWidget(self.context, self.signals)
+        self.editorWidget = BaseControlsWidget(self.context, self.signals, "fermi_map")
 
     def save_figure(self):
         filePath, _ = QFileDialog.getSaveFileName(self, "Save Image", "",

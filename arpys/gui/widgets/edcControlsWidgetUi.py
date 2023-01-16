@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import (QVBoxLayout, QSizePolicy, QLineEdit, QPushButton,
                              QHBoxLayout, QListWidget, QSpinBox, QGridLayout)
 
 
-class DewarperControlsWidget_Ui(object):
+class EDCControlsWidget_Ui(object):
 
     def setupUi(self, obj):
         """

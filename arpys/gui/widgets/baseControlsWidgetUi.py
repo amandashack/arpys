@@ -6,14 +6,14 @@ from PyQt5.QtWidgets import (QButtonGroup, QFrame, QGridLayout, QHBoxLayout,
 from PyQt5.QtCore import Qt
 
 
-class FermiMapControls_Ui(object):
+class BaseControls_Ui(object):
     def setupUi(self, obj):
         #####################################################################
         # set up user panel layout and give it a title
         #####################################################################
-        obj.layout_fermi_map = QVBoxLayout(obj)
+        obj._layout = QVBoxLayout(obj)
         obj.box_k_conv = CollapsibleBox("k conversion")
-        obj.layout_fermi_map.addWidget(obj.box_k_conv)
+        obj._layout.addWidget(obj.box_k_conv)
 
         #####################################################################
         # set selections for converting to k-space
@@ -131,7 +131,7 @@ class FermiMapControls_Ui(object):
         ###################################################################
 
         obj.box_plot_editor = CollapsibleBox("Plot Editor")
-        obj.layout_fermi_map.addWidget(obj.box_plot_editor)
+        obj._layout.addWidget(obj.box_plot_editor)
 
         obj.lbl_plot = Label("Select Subplot")
         obj.cbox_plot = ComboBox()
@@ -255,15 +255,18 @@ class FermiMapControls_Ui(object):
         obj.layout_colormap_normalization.addWidget(obj.cbox_normalization)
         obj.box_plot_editor.setContentLayout(obj.layout_plot_tools)
 
-        obj.bttn_open_dewarping_tool = QPushButton("Open Dewarping Tool")
-        obj.layout_fermi_map.addWidget(obj.bttn_open_dewarping_tool)
+        obj.bttn_open_edc_tool = QPushButton("Open edc Tool")
+        obj._layout.addWidget(obj.bttn_open_edc_tool)
+
+        obj.bttn_open_dewarper_tool = QPushButton("Open dewarper Tool")
+        obj._layout.addWidget(obj.bttn_open_dewarper_tool)
 
         #######################################################################
         # toolbar for adding horizontal and vertical lines to the plot
         #######################################################################
 
         obj.box_plot_editor = CollapsibleBox("Line Editor")
-        obj.layout_fermi_map.addWidget(obj.box_plot_editor)
+        obj._layout.addWidget(obj.box_plot_editor)
 
         obj.cbox_lines = ComboBox()
         obj.bttn_add_line = QPushButton("Add Line")
@@ -320,4 +323,4 @@ class FermiMapControls_Ui(object):
 
         obj.text_area = QTextEdit("~~~Read Only information for user~~~")
         obj.text_area.setReadOnly(True)
-        obj.layout_fermi_map.addWidget(obj.text_area)
+        obj._layout.addWidget(obj.text_area)
