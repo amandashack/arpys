@@ -4,6 +4,8 @@ from gui.widgets.dewarperControlsUi import DewarperControls_Ui
 from PyQt5.QtWidgets import QFrame
 from pathlib import Path
 import numpy as np
+from scipy.optimize import fmin
+import math
 
 log = logging.getLogger(__name__)
 
@@ -25,7 +27,12 @@ class DewarperControls(QFrame, DewarperControls_Ui):
         self.coord0 = self.data.coords[self.data.dims[0]].values
         self.coord1 = self.data.coords[self.data.dims[1]].values
         self.coord2 = self.data.coords[self.data.dims[2]].values
+        self.a = 25
+        self.b = .1
+        self.c = 4
+        self.y = 1.9
         self.min_eloss = 0
+        self.min_eloss_y = 0
         self.setupUi(self)
         self.set_min_eloss()
         self.make_connections()
@@ -36,8 +43,11 @@ class DewarperControls(QFrame, DewarperControls_Ui):
         self.cb_conv_binding.stateChanged.connect(self.set_widgets_enabled)
 
     def set_min_eloss(self):
-        self.min_eloss = np.round(np.power(1/(float(self.le_a.text()) * float(self.le_b.text()) * 2), 1/4), 3)
+        a = fmin(self.f, 0.005, full_output=True)
+        self.min_eloss = np.round(a[0], 5)
+        self.min_eloss_y = np.round(a[1], 5)
         self.le_min_eloss.setText(str(self.min_eloss))
+        self.le_min_eloss_y.setText(str(self.min_eloss_y))
 
     def initialize_data(self, st):
         self.data = self.context.master_dict['data'][st]
@@ -72,3 +82,7 @@ class DewarperControls(QFrame, DewarperControls_Ui):
             self.bttn_convert.setEnabled(False)
             self.bttn_fit_cut.setEnabled(True)
             self.bttn_fit_3d.setEnabled(True)
+
+    def f(self, x):
+        return np.power((np.power(self.a * x, self.c) / 2) -
+                        np.log(self.b * x) - self.y, 2)

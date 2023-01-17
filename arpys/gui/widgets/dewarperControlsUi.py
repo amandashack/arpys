@@ -82,6 +82,10 @@ class DewarperControls_Ui(object):
         obj.le_min_eloss = QLineEdit("0")
         obj.le_min_eloss.setReadOnly(True)
 
+        obj.lbl_min_eloss_y = Label("y value at minimum:")
+        obj.le_min_eloss_y = QLineEdit("0")
+        obj.le_min_eloss_y.setReadOnly(True)
+
         obj.lbl_a = Label("Variable a: ")
         obj.le_a = LineEdit("25")
         obj.le_a.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
@@ -135,6 +139,8 @@ class DewarperControls_Ui(object):
         obj.rdbttn_group.addButton(obj.rdbttn_og, id=1)
         obj.rdbttn_group.addButton(obj.rdbttn_dewarped, id=0)
 
+        obj.bttn_pop_out = QPushButton("Pop out current spectra")
+
         obj.layout_title = QHBoxLayout()
         obj.layout_convert = QHBoxLayout()
         obj.layout_downsample = QHBoxLayout()
@@ -159,6 +165,7 @@ class DewarperControls_Ui(object):
         obj.layout.addLayout(obj.layout_info, 10, 0, 1, 2)
         obj.layout.addLayout(obj.layout_bttns, 11, 0, 1, 2)
         obj.layout.addLayout(obj.layout_rdbttns, 12, 0, 1, 1)
+        obj.layout.addWidget(obj.bttn_pop_out, 12, 1, 1, 1)
 
         obj.layout_title.addWidget(obj.eloss_def)
         obj.layout_convert.addWidget(obj.cb_conv_binding, stretch=2)
@@ -177,6 +184,8 @@ class DewarperControls_Ui(object):
         obj.layout_cut_min_max.addWidget(obj.le_slice_range_max)
         obj.layout_variables.addWidget(obj.lbl_min_eloss)
         obj.layout_variables.addWidget(obj.le_min_eloss)
+        obj.layout_variables.addWidget(obj.lbl_min_eloss_y)
+        obj.layout_variables.addWidget(obj.le_min_eloss_y)
         obj.layout_variables.addWidget(obj.lbl_a)
         obj.layout_variables.addWidget(obj.le_a)
         obj.layout_variables.addWidget(obj.lbl_b)

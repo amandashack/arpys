@@ -51,11 +51,13 @@ class DewarperView(QWidget):
         self.controlWidget.le_power_c.returnPressed.connect(self.capture_c)
         self.controlWidget.le_subtraction_y.returnPressed.connect(self.capture_y)
         self.controlWidget.le_polyfit_order.returnPressed.connect(self.capture_order)
+        self.controlWidget.le_polyfit_order.returnPressed.connect(self.capture_threshold)
         self.controlWidget.bttn_convert.pressed.connect(self.convert_to_binding)
         self.controlWidget.bttn_fit_cut.pressed.connect(self.fit_cut)
         self.controlWidget.bttn_preview.pressed.connect(self.view_integral)
         self.controlWidget.bttn_fit_3d.pressed.connect(self.fit_3d)
         self.controlWidget.rdbttn_group.buttonClicked.connect(self.change_plotting)
+        self.controlWidget.bttn_pop_out.pressed.connect(self.pop_out)
         self.signals.changeEminText.connect(self.clear_all_fitting)
         self.signals.changeEmaxText.connect(self.clear_all_fitting)
 
@@ -131,27 +133,35 @@ class DewarperView(QWidget):
 
     def capture_a(self):
         self.imageWidget.a = float(self.controlWidget.le_a.text())
+        self.controlWidget.a = float(self.controlWidget.le_a.text())
         self.imageWidget.eloss = None
         self.controlWidget.set_min_eloss()
 
     def capture_b(self):
         self.imageWidget.b = float(self.controlWidget.le_b.text())
-        self.imageWidget.eloss = None
+        self.controlWidget.b = float(self.controlWidget.le_b.text())
+        self.clear_all_fitting()
         self.controlWidget.set_min_eloss()
 
     def capture_c(self):
         self.imageWidget.c = float(self.controlWidget.le_power_c.text())
-        self.imageWidget.eloss = None
+        self.controlWidget.c = float(self.controlWidget.le_power_c.text())
+        self.clear_all_fitting()
         self.controlWidget.set_min_eloss()
 
     def capture_y(self):
         self.imageWidget.y = float(self.controlWidget.le_subtraction_y.text())
-        self.imageWidget.eloss = None
+        self.controlWidget.y = float(self.controlWidget.le_subtraction_y.text())
+        self.clear_all_fitting()
+        self.controlWidget.set_min_eloss()
 
     def capture_order(self):
         self.imageWidget.polyfit_order = float(self.controlWidget.le_polyfit_order.text())
-        self.imageWidget.single_ef = None
-        self.imageWidget.min_vals = None
+        self.clear_all_fitting()
+
+    def capture_threshold(self):
+        self.imageWidget.threshold = float(self.controlWidget.le_threshold.text())
+        self.clear_all_fitting()
 
     def convert_to_binding(self):
         # TODO: This type of thing really needs an undo option, currently you'd have to restart the program
@@ -184,10 +194,15 @@ class DewarperView(QWidget):
         self.controlWidget.rdbttn_dewarped.setChecked(True)
         self.change_plotting(1)
 
-    def change_plotting(self, ident):
-        print("plotting changing")
+    def pop_out(self):
         ident = self.controlWidget.rdbttn_group.checkedId()
-        print(ident)
+        if ident == 0:
+            self.imageWidget.dewarped.arpes.plot()
+        else:
+            self.context.master_dict['data'][self.scan_type].arpes.plot()
+
+    def change_plotting(self, ident):
+        ident = self.controlWidget.rdbttn_group.checkedId()
         was = self.imageWidget.plot_dewarp
         NoneType = type(None)
         if ident == 1:
@@ -201,6 +216,8 @@ class DewarperView(QWidget):
         nowis = self.imageWidget.plot_dewarp
         if was != nowis:
             self.imageWidget.handle_plotting(imtool=True)
+        else:
+            self.controlWidget.le_info_bar.setText("There is not a dewarped spectra yet")
 
     def create_image_widget(self):
         self.imageWidget = DewarperImageWidget(self.context, self.signals)
