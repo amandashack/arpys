@@ -46,3 +46,12 @@ class Signals(QtCore.QObject):
     # emit in context
     # connect in mainWindow
     startDewarper = QtCore.pyqtSignal(str)
+    # emit in dewarperImageWidget
+    # connect in dewarperControls
+    changeEminText = QtCore.pyqtSignal(str)
+    # emit in dewarperImageWidget
+    # connect in dewarperControls
+    changeEmaxText = QtCore.pyqtSignal(str)
+    # emit in basicWidgets
+    # connect in dewarperControls and edcControls
+    mouseReleased = QtCore.pyqtSignal(int)

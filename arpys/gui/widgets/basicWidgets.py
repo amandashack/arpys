@@ -37,11 +37,14 @@ class PushButton(QPushButton):
 
 
 class HLineItem(QGraphicsLineItem):
+    mouseReleased = QtCore.pyqtSignal()
 
-    def __init__(self, signals):
+    def __init__(self, signals, ident=None):
         super(HLineItem, self).__init__()
+        self.ident = ident
         self.signals = signals
         self.setPen(QPen(Qt.red, 3))
+        self.y_pos = None
         self.setFlag(QGraphicsLineItem.ItemIsMovable)
         self.setCursor(Qt.OpenHandCursor)
         self.setAcceptHoverEvents(True)
@@ -54,18 +57,21 @@ class HLineItem(QGraphicsLineItem):
         updated_cursor_y = updated_cursor_position.y() - \
                            orig_cursor_position.y() + orig_position.y()
         self.setPos(QPointF(orig_position.x(), updated_cursor_y))
+        super(HLineItem, self).mouseReleaseEvent(event)
 
     def mouseReleaseEvent(self, event):
-        y_pos = event.scenePos().y()
-        self.signals.hbttnReleased.emit(y_pos)
+        self.y_pos = event.scenePos().y()
+        self.signals.mouseReleased.emit(self.ident)
+        super(HLineItem, self).mouseReleaseEvent(event)
 
 
 class VLineItem(QGraphicsLineItem):
 
-    def __init__(self, signals, id):
+    def __init__(self, signals, ident=None):
         super(VLineItem, self).__init__()
         self.signals = signals
-        self.id = id
+        self.ident = ident
+        self.x_pos = None
         self.setPen(QPen(Qt.blue, 3))
         self.setFlag(QGraphicsLineItem.ItemIsMovable)
         self.setCursor(Qt.OpenHandCursor)
@@ -79,10 +85,12 @@ class VLineItem(QGraphicsLineItem):
         updated_cursor_x = updated_cursor_position.x() - \
                            orig_cursor_position.x() + orig_position.x()
         self.setPos(QPointF(updated_cursor_x, orig_position.y()))
+        super(VLineItem, self).mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
-        x_pos = event.scenePos().x()
-        self.signals.vbttnReleased.emit(x_pos, self.id)
+        self.x_pos = event.scenePos().x()
+        self.signals.mouseReleased.emit(self.ident)
+        super(VLineItem, self).mouseReleaseEvent(event)
 
 
 class SpinBox(QSpinBox):

@@ -53,6 +53,58 @@ def load_merlin_pxt_map(filenames):
     concat = xr.concat(singlescan_xarrays, 'perp')
     return concat.assign_coords(newcoord)
 
+
+def load_merlin_pxt_map_new(filenames):
+    singlescan_xarrays = []
+    thetas = []
+    for filename in reversed(filenames):
+        one_slice = load_merlin_pxt_single_new(filename)
+        one_slice_theta = float(one_slice.attrs['Polar'])
+        singlescan_xarrays.append(one_slice)
+        thetas.append(one_slice_theta)
+    newcoord = {"perp": thetas}
+    concat = xr.concat(singlescan_xarrays, 'perp')
+    return concat.assign_coords(newcoord)
+
+
+def load_merlin_pxt_single_new(filename):
+    conv = {'eV': 'energy', 'deg': 'slit'}
+
+    #Read in using this byte-order, idk if this is going to work on everyone's machine
+    main = igor.load(filename, initial_byte_order='>')
+    igor_wave = main.children[1]
+
+    dims = np.array(igor_wave.data).ndim
+    axis_labels = []
+    for axis in np.arange(dims):
+        label_from_igor = igor_wave.axis_units[axis]
+        try:
+            axis_label = conv[label_from_igor]
+            axis_labels.append(axis_label)
+        except KeyError as e:
+            print('Could not understand [{0}] as an arpys axis!'.format(label_from_igor))
+
+    coords = dict(zip(axis_labels, igor_wave.axis))
+
+    notes = list(filter(None, str(igor_wave.notes).replace("\\r", "\\n").split("\\n")))[1:-2]
+    note_dictionary = []
+    for note in notes:
+        line = note.split("=")
+        if len(line) == 2:
+            note_dictionary.append((line[0], line[1]))
+    note_dictionary = dict(note_dictionary)
+    coords = {'energy': np.array(list(x-1 for x in list(reversed(coords['energy'].tolist())))),
+              'slit': coords['slit']}
+    dims = list(reversed(axis_labels))
+    d = igor_wave.data
+    return xr.DataArray(
+        d,
+        coords=coords,
+        dims=axis_labels,
+        attrs=note_dictionary
+    )
+
+
 def load_merlin_pxt_photonescan_noalign(filenames):
     singlescan_xarrays = []
     photon_energies = []

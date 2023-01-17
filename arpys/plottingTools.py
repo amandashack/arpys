@@ -66,7 +66,7 @@ class PlotCanvas(FigureCanvas):
         self.data = data
         try:
             self.data.plot(ax=self.axes, add_colorbar=False)
-        except AttributeError:
+        except AttributeError or IndexError:
             self.data.plot(ax=self.axes)
         self.fig.subplots_adjust(left=0.2)
         self.fig.subplots_adjust(bottom=0.2)
