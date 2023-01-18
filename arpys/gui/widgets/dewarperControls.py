@@ -44,7 +44,7 @@ class DewarperControls(QFrame, DewarperControls_Ui):
 
     def set_min_eloss(self):
         a = fmin(self.f, 0.005, full_output=True)
-        self.min_eloss = np.round(a[0], 5)
+        self.min_eloss = np.round(a[0][0], 5)
         self.min_eloss_y = np.round(a[1], 5)
         self.le_min_eloss.setText(str(self.min_eloss))
         self.le_min_eloss_y.setText(str(self.min_eloss_y))
