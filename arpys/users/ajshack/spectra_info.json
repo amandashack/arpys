@@ -1,0 +1,984 @@
+{
+    "fermi_map": {
+        "co33tas2": {
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_april2024/Co13TaS2_0012.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": 76,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": 71.57
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_april2024/Co13TaS2_0025.h5": {
+                "alignment": "GM",
+                "polarization": "CR",
+                "photon_energy": 76,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": 71.57
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_april2024/Co13TaS2_0026.h5": {
+                "alignment": "GM",
+                "polarization": "CL",
+                "photon_energy": 76,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": 71.57
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_april2024/Co13TaS2_0020.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": 86,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": 81.57
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_april2024/Co13TaS2_0021.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": 86,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": 81.57
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_april2024/Co13TaS2_0022.h5": {
+                "alignment": "GM",
+                "polarization": "CR",
+                "photon_energy": 86,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": 81.57
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_april2024/Co13TaS2_0023.h5": {
+                "alignment": "GM",
+                "polarization": "CL",
+                "photon_energy": 86,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": 81.57
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_april2024/Co13TaS2_0024.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": 83,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": 78.57
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_april2024/Co13TaS2_0035.h5": {
+                "alignment": "GM",
+                "polarization": "CR",
+                "photon_energy": 83,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": 78.57
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_april2024/Co13TaS2_0034.h5": {
+                "alignment": "GM",
+                "polarization": "CL",
+                "photon_energy": 83,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": 78.57
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_april2024/Co13TaS2_0027.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": 90,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": 85.57
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_april2024/Co13TaS2_0036.h5": {
+                "alignment": "GM",
+                "polarization": "CR",
+                "photon_energy": 90,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": 85.57
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_april2024/Co13TaS2_0038.h5": {
+                "alignment": "GM",
+                "polarization": "CL",
+                "photon_energy": 90,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": 85.57
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_april2024/Co13TaS2_0039.h5": {
+                "alignment": "GM",
+                "polarization": "CL",
+                "photon_energy": 90,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": 85.57
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_april2024/Co13TaS2_0028.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": 96,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": 91.57
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_april2024/Co13TaS2_0029.h5": {
+                "alignment": "GM",
+                "polarization": "CR",
+                "photon_energy": 96,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": 91.57
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_april2024/Co13TaS2_0030.h5": {
+                "alignment": "GM",
+                "polarization": "CL",
+                "photon_energy": 96,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": 91.57
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_april2024/Co13TaS2_0031.h5": {
+                "alignment": "GM",
+                "polarization": "CL",
+                "photon_energy": 96,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": 91.57
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_76_GM_LH_k_conv.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": 76,
+                "k_conv": true,
+                "masked": false,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_86_GM_LH_k_conv.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": 86,
+                "k_conv": true,
+                "masked": false,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_83_GM_LH_k_conv.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": 83,
+                "k_conv": true,
+                "masked": false,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_90_GM_LH_k_conv.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": 90,
+                "k_conv": true,
+                "masked": false,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_96_GM_LH_k_conv.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": 96,
+                "k_conv": true,
+                "masked": false,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_76_GM_CR_k_conv.h5": {
+                "alignment": "GM",
+                "polarization": "CR",
+                "photon_energy": 76,
+                "k_conv": true,
+                "masked": false,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_86_GM_CR_k_conv.h5": {
+                "alignment": "GM",
+                "polarization": "CR",
+                "photon_energy": 86,
+                "k_conv": true,
+                "masked": false,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_83_GM_CR_k_conv.h5": {
+                "alignment": "GM",
+                "polarization": "CR",
+                "photon_energy": 83,
+                "k_conv": true,
+                "masked": false,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_90_GM_CR_k_conv.h5": {
+                "alignment": "GM",
+                "polarization": "CR",
+                "photon_energy": 90,
+                "k_conv": true,
+                "masked": false,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_96_GM_CR_k_conv.h5": {
+                "alignment": "GM",
+                "polarization": "CR",
+                "photon_energy": 96,
+                "k_conv": true,
+                "masked": false,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_76_GM_CL_k_conv.h5": {
+                "alignment": "GM",
+                "polarization": "CL",
+                "photon_energy": 76,
+                "k_conv": true,
+                "masked": false,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_86_GM_CL_k_conv.h5": {
+                "alignment": "GM",
+                "polarization": "CL",
+                "photon_energy": 86,
+                "k_conv": true,
+                "masked": false,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_83_GM_CL_k_conv.h5": {
+                "alignment": "GM",
+                "polarization": "CL",
+                "photon_energy": 83,
+                "k_conv": true,
+                "masked": false,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_90_GM_CL_k_conv.h5": {
+                "alignment": "GM",
+                "polarization": "CL",
+                "photon_energy": 90,
+                "k_conv": true,
+                "masked": false,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_96_GM_CL_k_conv.h5": {
+                "alignment": "GM",
+                "polarization": "CL",
+                "photon_energy": 96,
+                "k_conv": true,
+                "masked": false,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_76_GM_LH_masked.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": 76,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_86_GM_LH_masked.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": 86,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_83_GM_LH_masked.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": 83,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_90_GM_LH_masked.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": 90,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_96_GM_LH_masked.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": 96,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_76_GM_CR_masked.h5": {
+                "alignment": "GM",
+                "polarization": "CR",
+                "photon_energy": 76,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_86_GM_CR_masked.h5": {
+                "alignment": "GM",
+                "polarization": "CR",
+                "photon_energy": 86,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_83_GM_CR_masked.h5": {
+                "alignment": "GM",
+                "polarization": "CR",
+                "photon_energy": 83,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_90_GM_CR_masked.h5": {
+                "alignment": "GM",
+                "polarization": "CR",
+                "photon_energy": 90,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_96_GM_CR_masked.h5": {
+                "alignment": "GM",
+                "polarization": "CR",
+                "photon_energy": 96,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_76_GM_CL_masked.h5": {
+                "alignment": "GM",
+                "polarization": "CL",
+                "photon_energy": 76,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_86_GM_CL_masked.h5": {
+                "alignment": "GM",
+                "polarization": "CL",
+                "photon_energy": 86,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_83_GM_CL_masked.h5": {
+                "alignment": "GM",
+                "polarization": "CL",
+                "photon_energy": 83,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_90_GM_CL_masked.h5": {
+                "alignment": "GM",
+                "polarization": "CL",
+                "photon_energy": 90,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_96_GM_CL_masked.h5": {
+                "alignment": "GM",
+                "polarization": "CL",
+                "photon_energy": 96,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_76_GM_diff.h5": {
+                "alignment": "GM",
+                "polarization": "diff",
+                "photon_energy": 76,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_86_GM_diff.h5": {
+                "alignment": "GM",
+                "polarization": "diff",
+                "photon_energy": 86,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_83_GM_diff.h5": {
+                "alignment": "GM",
+                "polarization": "diff",
+                "photon_energy": 83,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_90_GM_diff.h5": {
+                "alignment": "GM",
+                "polarization": "diff",
+                "photon_energy": 90,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co33tas2_96_GM_diff.h5": {
+                "alignment": "GM",
+                "polarization": "diff",
+                "photon_energy": 96,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            }
+        },
+        "co55tas2": {
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_071522/Co-TaS2_0010.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": 150,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": null
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_071522/Co-TaS2_0019.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": 76,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": 71.49
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_071522/Co-TaS2_0020.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": 92,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": 87.47
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_071522/Co-TaS2_0024.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": 115,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": 110.45
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_071522/Co-TaS2_0035.h5": {
+                "alignment": "GK",
+                "polarization": "LH",
+                "photon_energy": 76,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": null
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_113022/CoTS_0022.h5": {
+                "alignment": "GK",
+                "polarization": "LH",
+                "photon_energy": 192,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": null
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_113022/CoTS_0023.h5": {
+                "alignment": "GK",
+                "polarization": "LH",
+                "photon_energy": 187,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": null
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_113022/CoTS_0024.h5": {
+                "alignment": "GK",
+                "polarization": "LH",
+                "photon_energy": 182,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": null
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_113022/CoTS_0025.h5": {
+                "alignment": "GK",
+                "polarization": "LH",
+                "photon_energy": 176,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": null
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_113022/CoTS_0026.h5": {
+                "alignment": "GK",
+                "polarization": "LH",
+                "photon_energy": 162,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": null
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_113022/CoTS_0029.h5": {
+                "alignment": "GK",
+                "polarization": "LV",
+                "photon_energy": 76,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": 71.53
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_113022/CoTS_0030.h5": {
+                "alignment": "GK",
+                "polarization": "LH",
+                "photon_energy": 76,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": 71.53
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_113022/CoTS_0037.h5": {
+                "alignment": "GK",
+                "polarization": "LH",
+                "photon_energy": 187,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": 182.9
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_113022/CoTS_0038.h5": {
+                "alignment": "GK",
+                "polarization": "LH",
+                "photon_energy": 173,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": 168.82
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_113022/CoTS_0039.h5": {
+                "alignment": "GK",
+                "polarization": "LH",
+                "photon_energy": 159,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": 154.72
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_113022/CoTS_0040.h5": {
+                "alignment": "GK",
+                "polarization": "LH",
+                "photon_energy": 146,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": 141.67
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_113022/CoTS_0041.h5": {
+                "alignment": "GK",
+                "polarization": "LH",
+                "photon_energy": 121,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": 116.59
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_113022/CoTS_0042.h5": {
+                "alignment": "GK",
+                "polarization": "LH",
+                "photon_energy": 98,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": 93.56
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_113022/CoTS_0043.h5": {
+                "alignment": "GK",
+                "polarization": "LV",
+                "photon_energy": 146,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": 141.65
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_113022/CoTS_0021.h5": {
+                "alignment": "GK",
+                "polarization": "LH",
+                "photon_energy": 192,
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "ef": null
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co55tas2_76_GM_LH_k_conv.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": 76,
+                "k_conv": true,
+                "masked": false,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co55tas2_92_GM_LH_k_conv.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": 92,
+                "k_conv": true,
+                "masked": false,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co55tas2_115_GM_LH_k_conv.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": 115,
+                "k_conv": true,
+                "masked": false,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co55tas2_76_GK_LV_k_conv.h5": {
+                "alignment": "GK",
+                "polarization": "LV",
+                "photon_energy": 76,
+                "k_conv": true,
+                "masked": false,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co55tas2_76_GK_LH_k_conv.h5": {
+                "alignment": "GK",
+                "polarization": "LH",
+                "photon_energy": 76,
+                "k_conv": true,
+                "masked": false,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co55tas2_187_GK_LH_k_conv.h5": {
+                "alignment": "GK",
+                "polarization": "LH",
+                "photon_energy": 187,
+                "k_conv": true,
+                "masked": false,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co55tas2_173_GK_LH_k_conv.h5": {
+                "alignment": "GK",
+                "polarization": "LH",
+                "photon_energy": 173,
+                "k_conv": true,
+                "masked": false,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co55tas2_159_GK_LH_k_conv.h5": {
+                "alignment": "GK",
+                "polarization": "LH",
+                "photon_energy": 159,
+                "k_conv": true,
+                "masked": false,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co55tas2_146_GK_LH_k_conv.h5": {
+                "alignment": "GK",
+                "polarization": "LH",
+                "photon_energy": 146,
+                "k_conv": true,
+                "masked": false,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co55tas2_121_GK_LH_k_conv.h5": {
+                "alignment": "GK",
+                "polarization": "LH",
+                "photon_energy": 121,
+                "k_conv": true,
+                "masked": false,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co55tas2_98_GK_LH_k_conv.h5": {
+                "alignment": "GK",
+                "polarization": "LH",
+                "photon_energy": 98,
+                "k_conv": true,
+                "masked": false,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co55tas2_146_GK_LV_k_conv.h5": {
+                "alignment": "GK",
+                "polarization": "LV",
+                "photon_energy": 146,
+                "k_conv": true,
+                "masked": false,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co55tas2_76_GM_LH_masked.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": 76,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co55tas2_92_GM_LH_masked.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": 92,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co55tas2_115_GM_LH_masked.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": 115,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co55tas2_76_GK_LV_masked.h5": {
+                "alignment": "GK",
+                "polarization": "LV",
+                "photon_energy": 76,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co55tas2_76_GK_LH_masked.h5": {
+                "alignment": "GK",
+                "polarization": "LH",
+                "photon_energy": 76,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co55tas2_187_GK_LH_masked.h5": {
+                "alignment": "GK",
+                "polarization": "LH",
+                "photon_energy": 187,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co55tas2_173_GK_LH_masked.h5": {
+                "alignment": "GK",
+                "polarization": "LH",
+                "photon_energy": 173,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co55tas2_159_GK_LH_masked.h5": {
+                "alignment": "GK",
+                "polarization": "LH",
+                "photon_energy": 159,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co55tas2_146_GK_LH_masked.h5": {
+                "alignment": "GK",
+                "polarization": "LH",
+                "photon_energy": 146,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co55tas2_121_GK_LH_masked.h5": {
+                "alignment": "GK",
+                "polarization": "LH",
+                "photon_energy": 121,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co55tas2_98_GK_LH_masked.h5": {
+                "alignment": "GK",
+                "polarization": "LH",
+                "photon_energy": 98,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/fermi_maps/co55tas2_146_GK_LV_masked.h5": {
+                "alignment": "GK",
+                "polarization": "LV",
+                "photon_energy": 146,
+                "k_conv": true,
+                "masked": true,
+                "dewarped": false
+            }
+        }
+    },
+    "hv_scan": {
+        "co33tas2": {
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_april2024/Co13TaS2_0032.h5": {
+                "alignment": "GM",
+                "polarization": "CR",
+                "photon_energy": [
+                    64,
+                    99
+                ],
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "beam": "SSRL"
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_april2024/Co13TaS2_0033.h5": {
+                "alignment": "GM",
+                "polarization": "CL",
+                "photon_energy": [
+                    64,
+                    99
+                ],
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "beam": "SSRL"
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_april2024/Co13TaS2_0017.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": [
+                    60,
+                    72
+                ],
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "beam": "SSRL"
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_april2024/Co13TaS2_0018.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": [
+                    72,
+                    121
+                ],
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "beam": "SSRL"
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_april2024/Co13TaS2_0019.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": [
+                    121,
+                    181
+                ],
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "beam": "SSRL"
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_may2024/Co33TaS2_3_0007.h5": {
+                "alignment": "GK",
+                "polarization": "CL",
+                "photon_energy": [
+                    60,
+                    170
+                ],
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "beam": "SSRL"
+            }
+        },
+        "co55tas2": {
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_071522/Co-TaS2_0017.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": [
+                    70,
+                    120
+                ],
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "beam": "SSRL"
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_071522/Co-TaS2_0018.h5": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": [
+                    30,
+                    70
+                ],
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "beam": "SSRL"
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/ssrl_071522/Co-TaS2_0036.h5": {
+                "alignment": "GK",
+                "polarization": "LH",
+                "photon_energy": [
+                    30,
+                    170
+                ],
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "beam": "SSRL"
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/APS/cotas/kz_scan/hv_290_600": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": [
+                    290,
+                    600
+                ],
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "beam": "APS"
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/APS/cotas/kz_scan/hv_400_540": {
+                "alignment": "GM",
+                "polarization": "LH",
+                "photon_energy": [
+                    400,
+                    540
+                ],
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "beam": "APS"
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/APS/cotas/kz_scan/hv_440_540": {
+                "alignment": "GM",
+                "polarization": "LV",
+                "photon_energy": [
+                    440,
+                    540
+                ],
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "beam": "APS"
+            },
+            "C:/Users/proxi/Documents/coding/arpes_data/APS/cotas/kz_scan/hv_450_740": {
+                "alignment": "GM",
+                "polarization": "LV",
+                "photon_energy": [
+                    450,
+                    740
+                ],
+                "k_conv": false,
+                "masked": false,
+                "dewarped": false,
+                "beam": "APS"
+            }
+        }
+    }
+}
