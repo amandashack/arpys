@@ -7,4 +7,4 @@ class DewarperWindow_Ui(object):
         obj.setObjectName("Dewarper")
 
     def minimumSizeHint(self):
-        return (QSize(400, 800))
+        return (QSize(1200, 800))

@@ -2,6 +2,7 @@ import ctypes
 import logging
 import os
 import sys
+from pathlib import Path
 
 from gui.windows.mainWindow import MainWindow
 from PyQt5.Qt import Qt
@@ -53,6 +54,7 @@ def main():
         pass
 
     app = App(sys.argv)
+    app.setStyleSheet(Path('arpys_stylesheet.qss').read_text())
     # To add icon:
     # app.setWindowIcon(QIcon(application_path
     #                   + "{0}gui{0}misc{0}logo{0}logo3.ico".format(os.sep)))

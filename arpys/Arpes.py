@@ -17,8 +17,8 @@ def requires_ef(func):
     return func_wrapper
 
 
-def be_to_ke(hv,spectra):
-    workfunc = 4.2
+def be_to_ke(hv, spectra, wf=4.2):
+    workfunc = wf
     be = np.array(spectra.energy)
     ke = hv - workfunc + be
     reassigned = spectra.assign_coords({'energy':ke})
@@ -137,7 +137,7 @@ def k2alpha(kx, ky, ke, phi0=0, slit_orientation=0):
     if slit_orientation == 1:
         alpha = np.degrees(np.arcsin((np.sin(np.radians(phi0))*np.sqrt(k**2 - kx**2) + np.cos(phi0)*kx)/k))
         return alpha
-    elif slit_orientation ==2:
+    elif slit_orientation == 2:
         alpha = (kx / np.sqrt(k**2 - kz**2)) * np.degrees(np.arccos(kz/k))
         return alpha
     else:
@@ -429,7 +429,7 @@ class Arpes:
                 j += 1
             j = 0
             i += 1
-        return xr.DataArray(output,dims=['binding','kx'],coords={'binding':be,'kx':kx},attrs=copy.attrs)
+        return xr.DataArray(output, dims=['binding', 'kx'], coords={'binding': be, 'kx': kx}, attrs=copy.attrs)
 
     # This thing is monstrous, please put me out of my misery
     # Here theta0 is the distance to normal emission where this cut was taken

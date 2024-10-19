@@ -3,7 +3,7 @@ import logging
 from gui.widgets.dewarperControls import DewarperControls
 from gui.widgets.dewarperImageWidget import DewarperImageWidget
 from gui.windows.paramsTableWindow import ParamsTableWindow
-from PyQt5.QtWidgets import QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QHBoxLayout, QWidget
 import numpy as np
 from plottingTools import PlotWidget
 import arpys
@@ -28,7 +28,7 @@ class DewarperView(QWidget):
         self.signals = signals
         self.context = context
         self.camera = ""
-        self.mainLayout = QVBoxLayout()
+        self.mainLayout = QHBoxLayout()
         self.scan_type = "fermi_map"
         self.imageWidget = None
         self.controlWidget = None

@@ -153,7 +153,7 @@ class DewarperControls_Ui(object):
         obj.hline2 = QHLine()
         obj.hline3 = QHLine()
         obj.hline4 = QHLine()
-        obj.layout.addLayout(obj.layout_title, 0, 0, 1, 1)
+        obj.layout.addLayout(obj.layout_title, 0, 0, 1, 2)
         obj.layout.addWidget(obj.hline1, 1, 0, 1, 2)
         obj.layout.addLayout(obj.layout_convert, 2, 0, 1, 2)
         obj.layout.addWidget(obj.hline2, 3, 0, 1, 2)

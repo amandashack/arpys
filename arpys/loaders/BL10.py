@@ -2,6 +2,7 @@ import numpy as np
 import xarray as xr
 import glob
 
+
 def spin_txt_import(glob_filenames):
 
     # Check if input is list or str
@@ -103,6 +104,7 @@ def spin_txt_import(glob_filenames):
             attrs= info_dictionary
         )
 
+
 def spectra_txt_import(glob_filenames):
 
     # Check if input is list or str
@@ -188,7 +190,7 @@ def spectra_txt_import(glob_filenames):
         
         # ThetaX import
         sp_st = text_list[ThetaX_row_num][0:-1].split('=')
-        dim3[0] = int(sp_st[1])
+        dim3[0] = int(float(sp_st[1]))
     
 
     # Seems the data has one more point than the dimensions.. Not sure why the mismatch

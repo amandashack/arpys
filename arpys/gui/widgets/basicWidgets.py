@@ -293,17 +293,6 @@ class Label(QLabel):
                 font-size: 12px;\
             ")
 
-    def setTrackingStylesheet(self):
-        # this will change based on the status given back
-        self.setStyleSheet("\
-                qproperty-alignment: AlignCenter;\
-                border: 1px solid #FF17365D;\
-                background-color: red;\
-                padding: 5px 0px;\
-                color: rgb(255, 255, 255);\
-                font-size: 12px;\
-            ")
-
 
 class QHLine(QFrame):
     def __init__(self):

@@ -1,10 +1,7 @@
 import xarray as xr
 import numpy as np
-try:
-    import igor.binarywave as igor
-except ImportError as e:
-    import warnings
-    warnings.warn('You cannot import SPECS from Dessau without igor module')
+
+
 
 def load_specs_ibw(filename):
     dat = igor.load(filename)
@@ -20,6 +17,7 @@ def load_specs_ibw(filename):
     angle = a_offset + a_delta*np.arange(mat.shape[1])
     return xr.DataArray(mat, coords={'energy': energy, 'slit': angle}, dims=('energy', 'slit'), attrs=wavenote)
 
+
 def load_wave_note(wave):
     wavenote_dict = {}
     for x in wave['wave']['note'].decode('utf-8').split('\n'):
@@ -33,6 +31,7 @@ def load_wave_note(wave):
         key, val = split
         wavenote_dict[key] = val
     return wavenote_dict
+
 
 def load_map(file_list, dewarp=None):
     if dewarp is None:
@@ -48,6 +47,7 @@ def load_map(file_list, dewarp=None):
     for i in range(phi.size):
         mat[:, :, i] = wave_list[i].values
     return xr.DataArray(mat, coords={axis0_label: axis0, axis1_label: axis1, 'perp': phi}, dims=(axis0_label, axis1_label, 'perp'))
+
 
 def load_scan(file_list):
     wave_list = [load_specs_ibw(filename) for filename in file_list]
