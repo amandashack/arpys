@@ -1,23 +1,88 @@
+import numpy as np
+import cv2
+import matplotlib.pyplot as plt
+from sklearn.cluster import DBSCAN
 from load_spectra import load_spectra_by_material
 from tools import plot_imagetool
 from mask_data import mask_fermi_maps
 from restructure import ke_to_be
 from normalize_data import normalize_3D
-import numpy as np
 from scipy.optimize import curve_fit
-from lmfit.models import ThermalDistributionModel, LinearModel, ConstantModel
-import random
-import matplotlib.pyplot as plt
-import numba
+from scipy import ndimage
 import xarray as xr
+import numba
+import random
+import arpys
 
 
+# Shift function with numba for efficiency
 @numba.njit
 def shift4_numba(arr, num, fill_value=np.nan):
     if num > 0:
         return np.concatenate((np.full(num, fill_value), arr[:-num]))[:len(arr)]
     else:
         return np.concatenate((arr[-num:], np.full(-num, fill_value)))[:len(arr)]
+
+
+# Edge detection and filtering
+def preprocess_image(xar_slice):
+    image = (xar_slice.values * 255).astype('uint8')
+    smoothed = cv2.GaussianBlur(image, (5, 5), 0)
+    return smoothed
+
+
+def detect_edges(image):
+    v = np.median(image)
+    sigma = 0.2
+    lower = int(max(150, (1.0 - sigma) * v))
+    upper = int(min(200, (1.0 + sigma) * v))
+    edges = cv2.Canny(image, lower, upper)
+    return edges
+
+
+def cluster_edges(edges):
+    coords = np.column_stack(np.where(edges > 0))
+    clustering = DBSCAN(eps=2, min_samples=10).fit(coords)
+    labels = clustering.labels_
+    return labels, coords
+
+
+def filter_leading_edge(coords, exclude_top=5, exclude_bottom=5):
+    # Convert coords to an xarray Dataset
+    ds_coords = xr.Dataset({'x': ('points', coords[:, 1]),
+                            'y': ('points', coords[:, 0])})
+
+    # Group by y and get the leading edge by selecting the minimum x per group
+    leading_edge = ds_coords.groupby('y').reduce(np.max, dim='points')
+
+    # Get y-values and apply the top and bottom exclusion
+    y_values = leading_edge['y'].values
+    valid_idx = (y_values >= np.min(y_values) + exclude_top) & (y_values <= np.max(y_values) - exclude_bottom)
+
+    # Select only the valid rows based on the filter
+    leading_edge_filtered = leading_edge.sel(y=leading_edge['y'].values[valid_idx])
+
+    # Return the filtered leading edge coordinates
+    leading_edge_coords = np.column_stack((leading_edge_filtered['y'].values, leading_edge_filtered['x'].values))
+
+    return leading_edge_coords
+
+# Polynomial fitting
+def poly2d(xy, a, b, c, d, e, f):
+    x, y = xy
+    return a * x ** 2 + b * y ** 2 + c * x * y + d * x + e * y + f
+
+
+def fit_2d_polynomial(fermi_centers, uncertainties=None):
+    x = np.array([p[0] for p in fermi_centers])
+    y = np.array([p[1] for p in fermi_centers])
+    z = np.array([p[2] for p in fermi_centers])
+    if uncertainties:
+        weights = 1 / np.array(uncertainties)
+        params, _ = curve_fit(poly2d, (x, y), z, sigma=weights)
+    else:
+        params, _ = curve_fit(poly2d, (x, y), z)
+    return params
 
 
 def flatten_data(data, params):
@@ -30,7 +95,7 @@ def flatten_data(data, params):
 
     ef_max = np.nanmax(z_fit)
     de = z_coords[1] - z_coords[0]
-    index_shift = ((ef_max - z_fit) / (2*de)).astype(int)
+    index_shift = ((ef_max - z_fit) / de).astype(int)
 
     d = data.values
     nda = np.empty(d.shape)
@@ -45,134 +110,91 @@ def flatten_data(data, params):
     return new_spec
 
 
-def poly2d(xy, a, b, c, d, e, f):
-    x, y = xy
-    return a * x ** 2 + b * y ** 2 + c * x * y + d * x + e * y + f
-
-
-def fit_2d_polynomial(fermi_centers, uncertainties=None):
-    x = np.array([p[0] for p in fermi_centers])
-    y = np.array([p[1] for p in fermi_centers])
-    z = np.array([p[2] for p in fermi_centers])
-    if uncertainties:
-        weights = 1 / np.array(uncertainties)  # Using inverse of uncertainties as weights
-        params, _ = curve_fit(poly2d, (x, y), z, sigma=weights)
-    else:
-        params, _ = curve_fit(poly2d, (x, y), z)
-
-    return params
-
-
-def fit_fermi_function(data, points):
-    fermi_centers = []
-    uncertainties = []
-
-    for x, y in points:
-        spectrum = data.sel(slit=x, perp=y).values
-        energy = data.coords['energy'].values
-
-        # Define the model
-        fermifunc = ThermalDistributionModel(prefix='fermi_', form='fermi')
-        params = fermifunc.make_params()
-        T = 13.6  # Temperature of map
-        k = 8.617333e-5  # Boltzmann in eV/K
-        params['fermi_kt'].set(value=k * T, vary=True, max=0.03, min=0.001)
-        params['fermi_center'].set(value=-0.015, max=0.15, vary=True)
-        params['fermi_amplitude'].set(value=1, vary=False)
-
-        linearback = LinearModel(prefix='linear_')
-        params.update(linearback.make_params())
-        params['linear_slope'].set(value=0, max=50, vary=True)
-        params['linear_intercept'].set(value=1, vary=True)
-
-        constant = ConstantModel(prefix='constant_')
-        params.update(constant.make_params())
-        params['constant_c'].set(value=-1, max=1)
-
-        model = linearback * fermifunc + constant
-
-        # Fit the model to the data
-        result = model.fit(spectrum, params, x=energy)
-
-        # Extract the 'fermi_center' value and its uncertainty
-        fermi_center = result.params['fermi_center'].value
-        uncertainty = result.params['fermi_center'].stderr
-
-        if uncertainty is not None:
-            fermi_centers.append((x, y, fermi_center))
-            uncertainties.append(uncertainty)
-
-    return fermi_centers, uncertainties
-
-
-def select_valid_random_points(data, n):
-    x_coords = data.coords['slit'].values
-    y_coords = data.coords['perp'].values
+# Select random points from edge
+def select_valid_random_points(edge_points, n):
     selected_points = []
-
     while len(selected_points) < n:
-        x = random.choice(x_coords)
-        y = random.choice(y_coords)
-        spectrum = data.sel(slit=x, perp=y).values
-
-        # Check if the spectrum contains NaNs
-        if not np.isnan(spectrum).any():
-            selected_points.append((x, y))
-
+        point = random.choice(edge_points)
+        selected_points.append(point)
     return selected_points
 
 
+def plot_edges(image, coords):
+    plt.imshow(image, cmap='gray')
+    plt.scatter(coords[:, 1], coords[:, 0], c='red', s=1)
+    plt.tight_layout()
+    plt.figaspect(1)
+    plt.show()
 
-spectra_data = load_spectra_by_material("co33tas2", photon_energy=76, polarization='LH', alignment=None,
+
+if __name__ == '__main__':
+    # Main execution workflow
+    spectra_data = load_spectra_by_material("co33tas2", photon_energy=76, polarization='LH', alignment=None,
                                             k_conv=False, masked=False, dewarped=False)
-data_masked = mask_fermi_maps(*spectra_data)
-data_be = [ke_to_be(76, data_masked[0], wf=4.45)]
-data_normed = normalize_3D(*data_be)
-plot_imagetool(*data_normed)
-# Select random points
-random_points = select_valid_random_points(data_normed[0], n=1000)
+    data_masked = mask_fermi_maps(*spectra_data)
+    data_be = [ke_to_be(76, data_masked[0], wf=4.45)]
+    data_normed = normalize_3D(*data_be)
+    data = data_be[0].arpes.downsample({'perp': 2})
 
-# Fit Fermi function to random points
-fermi_centers, uncertainties = fit_fermi_function(data_normed[0], random_points)
+    # Step 1: Apply preprocessing and edge detection
+    edge_points = []
+    for slit in data.slit.values:
+        slice_2d = data.sel({'slit': slit})
+        if not np.isnan(slice_2d).all():
+            preprocessed = preprocess_image(slice_2d)
+            edges = detect_edges(preprocessed)
+            labels, coords = cluster_edges(edges)
 
-# Fit 2D polynomial to the fermi centers
-params = fit_2d_polynomial(fermi_centers)
+            # Filter for the leading edge
+            # Example: Exclude the first 10 rows and the last 10 rows
+            leading_edge_coords = filter_leading_edge(coords, exclude_top=5, exclude_bottom=5)
+            # plot_edges(slice_2d, leading_edge_coords)
+            # Add the (slit, perp, energy) values to edge_points
+            for (perp_idx, energy_idx) in leading_edge_coords:
+                perp = data.coords['perp'].values[int(perp_idx)]
+                energy = data.coords['energy'].values[int(energy_idx)]
+                edge_points.append((slit, perp, energy))  # (slit, perp, energy)
+    edge_points = np.array(edge_points)
 
-# Flatten the data using the fitted polynomial
-flattened_data = flatten_data(data_normed[0], params)
-plot_imagetool(flattened_data)
+    # Step 2: Select random points from leading edge
+    random_points = select_valid_random_points(edge_points, n=500)
 
-# Extract the points for plotting
-x = np.array([p[0] for p in fermi_centers])
-y = np.array([p[1] for p in fermi_centers])
-z = np.array([p[2] for p in fermi_centers])
+    # Visualize the selected points to ensure they are well-distributed
+    slit_vals = [p[0] for p in random_points]
+    perp_vals = [p[1] for p in random_points]
+    energy_vals = [p[2] for p in random_points]
 
-# Create meshgrid for plotting the polynomial fit surface
-x_coords = data_normed[0].coords['slit'].values
-y_coords = data_normed[0].coords['perp'].values
-x_mesh, y_mesh = np.meshgrid(x_coords, y_coords, indexing='ij')
-z_fit = poly2d((x_mesh, y_mesh), *params)
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter(slit_vals, perp_vals, energy_vals, c='r', marker='o')
+    ax.set_xlabel('Slit')
+    ax.set_ylabel('Perp')
+    ax.set_zlabel('Energy')
+    plt.show()
 
-# Plotting
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
+    # Step 3: Fit 2D polynomial to random points
+    params = fit_2d_polynomial(random_points)
 
-# Plot the fitted points
-scatter = ax.scatter(x, y, z, color='r', label='Fermi Fit Points')
+    # Step 3: Fit 2D polynomial to random points
+    params = fit_2d_polynomial(random_points)
 
-# Plot the polynomial fit surface
-surface = ax.plot_surface(x_mesh, y_mesh, z_fit, color='b', alpha=0.5)
+    # Visualize the fitted polynomial surface
+    x_vals = np.linspace(min(slit_vals), max(slit_vals), 100)
+    y_vals = np.linspace(min(perp_vals), max(perp_vals), 100)
+    x_mesh, y_mesh = np.meshgrid(x_vals, y_vals)
+    z_fit = poly2d((x_mesh, y_mesh), *params)
 
-# Labels and title
-ax.set_xlabel('Slit')
-ax.set_ylabel('Perp')
-ax.set_zlabel('Fermi Center')
-ax.set_title('Fermi Fit Points and 2D Polynomial Fit')
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter(slit_vals, perp_vals, energy_vals, c='r', marker='o', label='Selected Points')
+    ax.plot_surface(x_mesh, y_mesh, z_fit, color='b', alpha=0.5, label='Fitted Polynomial')
+    ax.set_xlabel('Slit')
+    ax.set_ylabel('Perp')
+    ax.set_zlabel('Energy')
+    plt.show()
 
-# Adding a manual legend
-scatter_proxy = plt.Line2D([0], [0], linestyle="none", marker='o', color='r')
-surface_proxy = plt.Line2D([0], [0], linestyle="none", marker='s', color='b')
+    # Step 4: Shift the data using the fitted polynomial
+    flattened_data = flatten_data(data_be[0], params)
 
-ax.legend([scatter_proxy, surface_proxy], ['Fermi Fit Points', '2D Polynomial Fit'])
-
-plt.show()
+    # Plot or analyze flattened data
+    plot_imagetool(flattened_data)
